@@ -1,0 +1,23 @@
+
+description = 'Impala HDFS plugin'
+apply plugin: 'eclipse'
+
+repositories {
+	maven { url "http://spring-roo-repository.springsource.org/release" }
+}
+
+dependencies {
+	compile "org.springframework.shell:spring-shell:$springShellVersion"
+	compile "org.apache.hadoop:hadoop-core:$hadoopVersion"
+}
+
+
+
+eclipse {
+	project {
+		name = "plugin-hdfs"
+	}
+}
+
+
+defaultTasks 'clean', 'build'

@@ -1,0 +1,28 @@
+description = 'Impala'
+
+allprojects {
+	group = "org.springframework.data.hadoop"
+
+	apply plugin: 'base'
+	apply plugin: 'java'
+
+	repositories {
+		mavenCentral()
+		maven { url "http://repo.springsource.org/snapshot" }
+		maven { url "http://repo.springsource.org/release" }
+		maven { url "http://repo.springsource.org/milestone" }
+		maven { url "http://mvnrepository.com/artifact" }
+	}
+
+	dependencies {
+		compile "commons-configuration:commons-configuration:$commonsConfigVersion"
+		compile "org.codehaus.jackson:jackson-core-asl:$jacksonVersion"
+		compile "org.codehaus.jackson:jackson-mapper-asl:$jacksonVersion"
+		compile "org.apache.hadoop:hadoop-core:$hadoopVersion"
+
+		testCompile "junit:junit:$junitVersion"
+		testCompile "org.springframework:spring-test:$springVersion"
+	}
+}
+
+defaultTasks 'clean', 'build'
