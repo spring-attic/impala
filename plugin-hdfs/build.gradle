@@ -1,6 +1,7 @@
 
 description = 'Impala HDFS plugin'
 apply plugin: 'eclipse'
+apply from: '../maven.gradle'
 
 repositories {
 	maven { url "http://spring-roo-repository.springsource.org/release" }
@@ -15,7 +16,7 @@ dependencies {
 
 eclipse {
 	project {
-		name = "plugin-hdfs"
+		name = "impala-plugin-hdfs"
 	}
 }
 

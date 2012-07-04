@@ -1,6 +1,7 @@
 
 description = 'Impala MapReduce plugin'
 apply plugin: 'eclipse'
+apply from: '../maven.gradle'
 
 repositories {
 	maven { url "http://spring-roo-repository.springsource.org/release" }
@@ -14,7 +15,7 @@ dependencies {
 
 eclipse {
 	project {
-		name = "plugin-mapreduce"
+		name = "impala-plugin-mapreduce"
 	}
 }
 
