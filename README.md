@@ -18,54 +18,46 @@ Interactive shell for Hadoop
 </dependency> 
 
 <build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>copy-dependencies</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/lib</outputDirectory>
-							<overWriteReleases>true</overWriteReleases>
-							<overWriteSnapshots>true</overWriteSnapshots>
-							<overWriteIfNewer>true</overWriteIfNewer>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<useUniqueVersions>false</useUniqueVersions>
-							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>${jar.mainclass}</mainClass>
-						</manifest>
-						<manifestEntries>
-							<version>${project.version}</version>
-						</manifestEntries>
-					</archive>
-				</configuration>
-			</plugin>
-		</plugins>
+	<plugins>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-dependency-plugin</artifactId>
+			<executions>
+				<execution>
+					<id>copy-dependencies</id>
+					<phase>prepare-package</phase>
+					<goals>
+						<goal>copy-dependencies</goal>
+					</goals>
+					<configuration>
+						<outputDirectory>${project.build.directory}/dependency</outputDirectory>
+						<overWriteReleases>true</overWriteReleases>
+						<overWriteSnapshots>true</overWriteSnapshots>
+						<overWriteIfNewer>true</overWriteIfNewer>
+					</configuration>
+				</execution>
+			</executions>
+		</plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-jar-plugin</artifactId>
+			<configuration>
+				<archive>
+					<manifest>
+						<addClasspath>true</addClasspath>
+						<useUniqueVersions>false</useUniqueVersions>
+						<classpathPrefix>dependency/</classpathPrefix>
+						<mainClass>${jar.mainclass}</mainClass>
+					</manifest>
+					<manifestEntries>
+						<version>${project.version}</version>
+					</manifestEntries>
+				</archive>
+			</configuration>
+		</plugin>
+	</plugins>
+</build>
 
-	</build>
 <!-- used for nightly builds -->
 <repository>
   <id>spring-maven-snapshot</id>
