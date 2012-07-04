@@ -42,20 +42,22 @@ public class FsShellCommand implements CommandMarker {
 
 	// Constants
 	private static Logger LOGGER = HandlerUtils.getLogger(FsShellCommand.class);
-	
+
 	private FsShell shell;
-	
+
+	private boolean initialized;
+
 	@Autowired
 	private HdfsConfiguration hdfsConfiguration;
 
-	@CliAvailabilityIndicator({ "dfs"})
+	@CliAvailabilityIndicator({ "dfs" })
 	public boolean isCommandsAvailable() {
 		return isHDFSUrlSet();
 	}
-	
+
 	//TODO - add back in functionality to read a property file of a well known name to set the default value.
 	//       This can be handled using @Value in HdfsConfiguration
-	
+
 	/**
 	 * judge whether HDFS URL is set 
 	 * 
@@ -66,19 +68,128 @@ public class FsShellCommand implements CommandMarker {
 		boolean result = true;
 		String dfsName = hdfsConfiguration.getDfsName();
 		if (dfsName == null || dfsName.length() == 0) {
-		  result = false;
-		}		
+			result = false;
+		}
 		return result;
 	}
+
+	@CliCommand(value = "hdfs ls", help = "list files in HDFS")
+	public void ls(
+			@CliOption(key = { "" }, mandatory = false, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "directory to be listed") final String path,
+			@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive) {
+		setupShell();
+		if (recursive) {
+			runCommand("-lsr", path);
+		}
+		else {
+			runCommand("-ls", path);
+		}
+	}
+
+	/*
+	@CliCommand(value = "hdfs lsr", help = "list files in HDFS with recursion")
+	public void lsr(@CliOption(key = { "" }, mandatory = false, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "directory to be listed") final String path) {
+		setupShell();
+		runCommand("-lsr", path);
+	}
+	*/
+
+	@CliCommand(value = "hdfs cat", help = "show file content")
+	public void cat(@CliOption(key = { "" }, mandatory = true, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "file name to be showed") final String path) {
+		setupShell();
+		runCommand("-cat", path);
+	}
+
+	@CliCommand(value = "hdfs chgrp", help = "change file group")
+	public void chgrp(@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive,
+			@CliOption(key = { "group" }, mandatory = true, help = "group name") final String group,
+			@CliOption(key = { "" }, mandatory = true, help = "file name to be changed group") final String path) {
+		setupShell();
+
+		List<String> argv = new ArrayList<String>();
+		argv.add("-chgrp");
+		if (recursive) {
+			argv.add("-R");
+		}
+		argv.add(group);
+		String[] fileNames = path.split(" ");
+		argv.addAll(Arrays.asList(fileNames));
+		run(argv.toArray(new String[0]));
+	}
 	
+	@CliCommand(value = "hdfs chown", help = "change file ownership")
+	public void chown(@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive,
+			@CliOption(key = { "owner" }, mandatory = true, help = "owner name") final String owner,
+			@CliOption(key = { "" }, mandatory = true, help = "file name to be changed group") final String path) {
+		setupShell();
+
+		List<String> argv = new ArrayList<String>();
+		argv.add("-chown");
+		if (recursive) {
+			argv.add("-R");
+		}
+		argv.add(owner);
+		String[] fileNames = path.split(" ");
+		argv.addAll(Arrays.asList(fileNames));
+		run(argv.toArray(new String[0]));
+	}
+	
+	@CliCommand(value = "hdfs copyFromLocal", help = "copy local files to HDFS")
+	public void copyFromLocal(
+			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
+			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
+		setupShell();
+
+		List<String> argv = new ArrayList<String>();
+		argv.add("-copyFromLocal");
+		String[] fileNames = source.split(" ");
+		argv.addAll(Arrays.asList(fileNames));
+		argv.add(dest);
+		run(argv.toArray(new String[0]));
+	}
+	
+	@CliCommand(value = "hdfs put", help = "copy local files to HDFS")
+	public void put(
+			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
+			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
+		setupShell();
+
+		List<String> argv = new ArrayList<String>();
+		argv.add("-put");
+		String[] fileNames = source.split(" ");
+		argv.addAll(Arrays.asList(fileNames));
+		argv.add(dest);
+		run(argv.toArray(new String[0]));
+	}
+	
+	
+	@CliCommand(value = "hdfs copyToLocal", help = "copy HDFS files to local")
+	public void copyToLocal(
+			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
+			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest,
+			@CliOption(key = { "ignoreCrc" }, mandatory = false, specifiedDefaultValue = "true", help = "whether ignore CRC") final boolean ignoreCrc,
+			@CliOption(key = { "crc" }, mandatory = false, specifiedDefaultValue = "true", help = "whether copy CRC") final boolean crc) {
+		setupShell();
+
+		List<String> argv = new ArrayList<String>();
+		argv.add("-copyToLocal");
+		if(ignoreCrc){
+			argv.add("-ignoreCrc");
+		}
+		if(crc){
+			argv.add("-crc");
+		}
+		argv.add(source);
+		argv.add(dest);
+		run(argv.toArray(new String[0]));
+	}
+	
+
 	//TODO - these should be their own commands.
-	
 	@CliCommand(value = "dfs", help = "run dfs commands")
-	public void runDfsCommands(
-			@CliOption(key = { "ls" }, mandatory = false, specifiedDefaultValue = ".", help = "directory to be listed") final String ls, 
+	public void runDfsCommands(@CliOption(key = { "ls" }, mandatory = false, specifiedDefaultValue = ".", help = "directory to be listed") final String ls,
 			@CliOption(key = { "lsr" }, mandatory = false, specifiedDefaultValue = ".", help = "directory to be listed with recursion") final String lsr,
-			@CliOption(key = { "cat" }, mandatory = false, help = "file to be showed") final String cat,
-			@CliOption(key = { "chgrp" }, mandatory = false, help = "file to be changed group") final String chgrp,
+			@CliOption(key = { "cat" }, mandatory = false, help = "file to be showed") final String cat, @CliOption(key = { "chgrp" }, mandatory = false, help = "file to be changed group") final String chgrp,
 			@CliOption(key = { "chmod" }, mandatory = false, help = "file to be changed right") final String chmod,
 			@CliOption(key = { "chown" }, mandatory = false, help = "file to be changed owner") final String chown,
 			@CliOption(key = { "copyFromLocal" }, mandatory = false, help = "copy from local to HDFS") final String copyFromLocal,
@@ -102,124 +213,121 @@ public class FsShellCommand implements CommandMarker {
 			@CliOption(key = { "tail" }, mandatory = false, help = "tail the file") final String tail,
 			@CliOption(key = { "test" }, mandatory = false, help = "check a file") final String test,
 			@CliOption(key = { "text" }, mandatory = false, help = "output the file in text format") final String text,
-			@CliOption(key = { "touchz" }, mandatory = false, help = "create a file of zero lenth") final String touchz
-			) {
-		try {
-			//TODO - should not recreate shell over and over again. 
-			setupShell();
-		} catch (Exception e) {
-			LOGGER.warning("run HDFS shell failed" + e.getMessage() );
-		}
-		
+			@CliOption(key = { "touchz" }, mandatory = false, help = "create a file of zero lenth") final String touchz) {
+
+		//TODO - should not recreate shell over and over again. 
+		setupShell();
+
 		if (ls != null) {
-			runCommand("-ls",ls);
+			runCommand("-ls", ls);
 			return;
 		}
 		else if (lsr != null) {
-			runCommand("-lsr",lsr);
+			runCommand("-lsr", lsr);
 			return;
 		}
 		else if (cat != null) {
-			runCommand("-cat",cat);
+			runCommand("-cat", cat);
 			return;
 		}
 		else if (chgrp != null) {
-			runCommand("-chgrp",chgrp);
+			runCommand("-chgrp", chgrp);
 			return;
 		}
 		else if (chmod != null) {
-			runCommand("-chmod",chmod);
+			runCommand("-chmod", chmod);
 			return;
 		}
 		else if (chown != null) {
-			runCommand("-chown",chown);
+			runCommand("-chown", chown);
 			return;
 		}
 		else if (copyFromLocal != null) {
-			runCommand("-copyFromLocal",copyFromLocal);
+			runCommand("-copyFromLocal", copyFromLocal);
 			return;
 		}
 		else if (copyToLocal != null) {
-			runCommand("-copyToLocal",copyToLocal);
+			runCommand("-copyToLocal", copyToLocal);
 			return;
 		}
 		else if (count != null) {
-			runCommand("-count",count);
+			runCommand("-count", count);
 			return;
 		}
 		else if (cp != null) {
-			runCommand("-cp",cp);
+			runCommand("-cp", cp);
 			return;
 		}
 		else if (du != null) {
-			runCommand("-du",du);
+			runCommand("-du", du);
 			return;
 		}
 		else if (dus != null) {
-			runCommand("-dus",dus);
+			runCommand("-dus", dus);
 			return;
 		}
 		else if (expunge != null) {
-			runCommand("-expunge",expunge);
+			runCommand("-expunge", expunge);
 			return;
 		}
 		else if (get != null) {
-			runCommand("-get",get);
+			runCommand("-get", get);
 			return;
 		}
 		else if (getmerge != null) {
-			runCommand("-getmerge",getmerge);
+			runCommand("-getmerge", getmerge);
 			return;
 		}
 		else if (mkdir != null) {
-			runCommand("-mkdir",mkdir);
+			runCommand("-mkdir", mkdir);
 			return;
 		}
 		else if (moveFromLocal != null) {
-			runCommand("-moveFromLocal",moveFromLocal);
+			runCommand("-moveFromLocal", moveFromLocal);
 			return;
 		}
 		else if (moveToLocal != null) {
-			runCommand("-moveToLocal",moveToLocal);
+			runCommand("-moveToLocal", moveToLocal);
 			return;
 		}
 		else if (mv != null) {
-			runCommand("-mv",mv);
+			runCommand("-mv", mv);
 			return;
 		}
 		else if (put != null) {
-			runCommand("-put",put);
+			runCommand("-put", put);
 			return;
 		}
 		else if (rm != null) {
-			runCommand("-rm",rm);
+			runCommand("-rm", rm);
 			return;
 		}
 		else if (rmr != null) {
-			runCommand("-rmr",rmr);
+			runCommand("-rmr", rmr);
 			return;
 		}
 		else if (setrep != null) {
-			runCommand("-setrep",setrep);
+			runCommand("-setrep", setrep);
 			return;
 		}
 		else if (stat != null) {
-			runCommand("-stat",stat);
+			runCommand("-stat", stat);
 			return;
 		}
 		else if (tail != null) {
-			runCommand("-tail",tail);
+			runCommand("-tail", tail);
 			return;
 		}
 		else if (test != null) {
-			runCommand("-test",test);
+			runCommand("-test", test);
 			return;
-		}else if (text != null) {
-			runCommand("-text",text);
+		}
+		else if (text != null) {
+			runCommand("-text", text);
 			return;
 		}
 		else if (touchz != null) {
-			runCommand("-touchz",touchz);
+			runCommand("-touchz", touchz);
 			return;
 		}
 	}
@@ -232,17 +340,24 @@ public class FsShellCommand implements CommandMarker {
 		argv.add(command);
 		String[] fileNames = value.split(" ");
 		argv.addAll(Arrays.asList(fileNames));
+		run(argv.toArray(new String[0]));
+	}
+
+	private void run(String[] argv) {
 		try {
-			shell.run(argv.toArray(new String[0]));
+			shell.run(argv);
 		} catch (Exception e) {
 			LOGGER.warning("run HDFS shell failed. " + e.getMessage());
 		}
 	}
 
-	private void setupShell() throws Exception {
-		Configuration config = new Configuration();
-		config.setStrings("fs.default.name", hdfsConfiguration.getDfsName());
-		shell = new FsShell(config);
+	private void setupShell() {
+		if (!initialized) {
+			Configuration config = new Configuration();
+			config.setStrings("fs.default.name", hdfsConfiguration.getDfsName());
+			shell = new FsShell(config);
+			initialized = true;
+		}
 	}
 
 }

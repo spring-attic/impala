@@ -33,7 +33,7 @@ public class HdfsTargetCommand implements CommandMarker {
 
 	@Autowired
 	private HdfsConfiguration hdfsConfiguration;
-		
+
 	/**
 	 * set HDFS URL
 	 * 
@@ -41,6 +41,11 @@ public class HdfsTargetCommand implements CommandMarker {
 	 */
 	@CliCommand(value = "hdfs target", help = "set HDFS URL")
 	public void dfsName(@CliOption(key = { "url" }, mandatory = true, help = "HDFS URL") final String url) {
-		hdfsConfiguration.setDfsName(url);		
+		hdfsConfiguration.setDfsName(url);
+	}
+
+	@CliCommand(value = "hdfs info", help = "show HDFS URL")
+	public void showDfsName() {
+		System.out.println("HDFS URL:" + hdfsConfiguration.getDfsName());
 	}
 }
