@@ -18,6 +18,7 @@ package org.springframework.data.hadoop.impala.hdfs;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class HdfsConfiguration {
 
 	private static final String DFS_KEY = "dfs.default.name";

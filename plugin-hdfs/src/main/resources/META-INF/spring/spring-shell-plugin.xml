@@ -9,5 +9,5 @@
 		<context:include-filter type="regex" expression="(commands|provider)\..*"/>
 	</context:component-scan>
 
-	<bean class="org.springframework.data.hadoop.admin.cli.hdfs.HdfsConfiguration"/>
+	<bean class="org.springframework.data.hadoop.admin.impala.hdfs.HdfsConfiguration"/>
 </beans>
