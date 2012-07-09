@@ -1,6 +1,11 @@
-/.classpath
-/.project
-/.gradle
+.classpath
+.project
+.gradle
+.settings
 *.log
-
-
+bin
+build
+*.iml
+*.ipr
+*.iws
+*.log

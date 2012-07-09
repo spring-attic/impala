@@ -6,14 +6,11 @@ allprojects {
 
 	apply plugin: 'base'
 	apply plugin: 'java'
+	apply plugin: 'eclipse'
 
 
 	repositories {
-		mavenCentral()
 		maven { url "http://repo.springsource.org/snapshot" }
-		maven { url "http://repo.springsource.org/release" }
-		maven { url "http://repo.springsource.org/milestone" }
-		maven { url "http://mvnrepository.com/artifact" }
 	}
 
 	dependencies {

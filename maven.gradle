@@ -42,7 +42,19 @@ def customizePom(pom, gradleProject) {
 					url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
 					distribution 'repo'
 				}
-			}			
+			}
+            scm {
+                url = 'http://github.com/SpringSource/impala'
+                connection = 'scm:git:git://github.com/SpringSource/impala'
+                developerConnection = 'scm:git:git://github.com/SpringSource/impala'
+            }
+            developers {
+                developer {
+                    id = 'markpollack'
+                    name = 'Mark Pollack'
+                    email = 'mpollack@vmware.com'
+                }
+            }			
 		}
 	}
 }
