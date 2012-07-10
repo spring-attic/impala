@@ -30,8 +30,8 @@ public class JobConfiguration {
 
 	private Map<String, String> props = new HashMap<String, String>();
 
-	public void setJobTracker(String dfsName) {
-		props.put(JOB_TRACKER_KEY, dfsName);
+	public void setJobTracker(String jobTracker) {
+		props.put(JOB_TRACKER_KEY, jobTracker);
 
 	}
 
