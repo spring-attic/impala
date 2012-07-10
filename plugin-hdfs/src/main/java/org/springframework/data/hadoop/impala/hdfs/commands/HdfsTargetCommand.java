@@ -39,12 +39,12 @@ public class HdfsTargetCommand implements CommandMarker {
 	 * 
 	 * @param url HDFS url, for example, "hdfs://localhost:9000".
 	 */
-	@CliCommand(value = "hdfs target", help = "set HDFS URL")
+	@CliCommand(value = "dfs url target", help = "set HDFS URL")
 	public void dfsName(@CliOption(key = { "url" }, mandatory = true, help = "HDFS URL") final String url) {
 		hdfsConfiguration.setDfsName(url);
 	}
 
-	@CliCommand(value = "hdfs info", help = "show HDFS URL")
+	@CliCommand(value = "dfs url info", help = "show HDFS URL")
 	public void showDfsName() {
 		System.out.println("HDFS URL:" + hdfsConfiguration.getDfsName());
 	}

@@ -321,6 +321,7 @@ public class FsShellCommand implements CommandMarker {
 		run(argv.toArray(new String[0]));
 	}
 	
+	/*
 	@CliCommand(value = "hdfs mergeget", help = "merge files")
 	public void getmerge(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
@@ -334,6 +335,7 @@ public class FsShellCommand implements CommandMarker {
 		argv.add(dest);
 		run(argv.toArray(new String[0]));
 	}
+	*/
 	
 	@CliCommand(value = "hdfs mkdir", help = "create new directory")
 	public void mkdir(
@@ -397,29 +399,6 @@ public class FsShellCommand implements CommandMarker {
 		argv.add("-tail");
 		if(file){
 			argv.add("-f");
-		}
-		argv.add(path);
-		run(argv.toArray(new String[0]));
-	}
-	
-	@CliCommand(value = "hdfs test", help = "test file in HDFS")
-	public void test(
-			@CliOption(key = { "" }, mandatory = true, help = "file to be tested") final String path,
-			@CliOption(key = { "exist" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether the file exit") final boolean exist,
-			@CliOption(key = { "zero" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether the file has zero length") final boolean zero,
-			@CliOption(key = { "dir" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether the file is directory") final boolean directory
-			) {
-		setupShell();
-		List<String> argv = new ArrayList<String>();
-		argv.add("-test");
-		if(exist){
-			argv.add("-e");
-		}
-		if(zero){
-			argv.add("-z");
-		}
-		if(directory){
-			argv.add("-d");
 		}
 		argv.add(path);
 		run(argv.toArray(new String[0]));
