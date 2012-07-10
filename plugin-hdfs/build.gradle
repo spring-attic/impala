@@ -10,6 +10,8 @@ repositories {
 dependencies {
 	compile "org.springframework.shell:spring-shell:$springShellVersion"
 	compile "org.apache.hadoop:hadoop-core:$hadoopVersion"
+
+	runtime "javax.ws.rs:jsr311-api:$jsr311Version"
 }
 
 

@@ -118,7 +118,8 @@ public class FsShellCommand implements CommandMarker {
 	}
 	
 	@CliCommand(value = "hdfs chown", help = "change file ownership")
-	public void chown(@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive,
+	public void chown(
+			@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive,
 			@CliOption(key = { "owner" }, mandatory = true, help = "owner name") final String owner,
 			@CliOption(key = { "" }, mandatory = true, help = "file name to be changed group") final String path) {
 		setupShell();
@@ -162,13 +163,27 @@ public class FsShellCommand implements CommandMarker {
 		run(argv.toArray(new String[0]));
 	}
 	
+	@CliCommand(value = "hdfs moveFromLocal", help = "move local files to HDFS")
+	public void moveFromLocal(
+			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
+			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
+		setupShell();
+
+		List<String> argv = new ArrayList<String>();
+		argv.add("-moveFromLocal");
+		String[] fileNames = source.split(" ");
+		argv.addAll(Arrays.asList(fileNames));
+		argv.add(dest);
+		run(argv.toArray(new String[0]));
+	}
+	
 	
 	@CliCommand(value = "hdfs copyToLocal", help = "copy HDFS files to local")
 	public void copyToLocal(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest,
-			@CliOption(key = { "ignoreCrc" }, mandatory = false, specifiedDefaultValue = "true", help = "whether ignore CRC") final boolean ignoreCrc,
-			@CliOption(key = { "crc" }, mandatory = false, specifiedDefaultValue = "true", help = "whether copy CRC") final boolean crc) {
+			@CliOption(key = { "ignoreCrc" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether ignore CRC") final boolean ignoreCrc,
+			@CliOption(key = { "crc" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether copy CRC") final boolean crc) {
 		setupShell();
 
 		List<String> argv = new ArrayList<String>();
@@ -184,154 +199,252 @@ public class FsShellCommand implements CommandMarker {
 		run(argv.toArray(new String[0]));
 	}
 	
-
-	//TODO - these should be their own commands.
-	@CliCommand(value = "dfs", help = "run dfs commands")
-	public void runDfsCommands(@CliOption(key = { "ls" }, mandatory = false, specifiedDefaultValue = ".", help = "directory to be listed") final String ls,
-			@CliOption(key = { "lsr" }, mandatory = false, specifiedDefaultValue = ".", help = "directory to be listed with recursion") final String lsr,
-			@CliOption(key = { "cat" }, mandatory = false, help = "file to be showed") final String cat, @CliOption(key = { "chgrp" }, mandatory = false, help = "file to be changed group") final String chgrp,
-			@CliOption(key = { "chmod" }, mandatory = false, help = "file to be changed right") final String chmod,
-			@CliOption(key = { "chown" }, mandatory = false, help = "file to be changed owner") final String chown,
-			@CliOption(key = { "copyFromLocal" }, mandatory = false, help = "copy from local to HDFS") final String copyFromLocal,
-			@CliOption(key = { "copyToLocal" }, mandatory = false, help = "copy HDFS to local") final String copyToLocal,
-			@CliOption(key = { "count" }, mandatory = false, help = "file to be count") final String count,
-			@CliOption(key = { "cp" }, mandatory = false, help = "file to be copied") final String cp,
-			@CliOption(key = { "du" }, mandatory = false, help = "display sizes of file") final String du,
-			@CliOption(key = { "dus" }, mandatory = false, help = "display summary sizes of file") final String dus,
-			@CliOption(key = { "expunge" }, mandatory = false, help = "empty the trash") final String expunge,
-			@CliOption(key = { "get" }, mandatory = false, help = "copy to local") final String get,
-			@CliOption(key = { "getmerge" }, mandatory = false, help = "merge file") final String getmerge,
-			@CliOption(key = { "mkdir" }, mandatory = false, help = "create new directory") final String mkdir,
-			@CliOption(key = { "moveFromLocal" }, mandatory = false, help = "move local to HDFS") final String moveFromLocal,
-			@CliOption(key = { "moveToLocal" }, mandatory = false, help = "move local to HDFS") final String moveToLocal,
-			@CliOption(key = { "mv" }, mandatory = false, help = "move file from source to destination") final String mv,
-			@CliOption(key = { "put" }, mandatory = false, help = "copy from local to HDFS") final String put,
-			@CliOption(key = { "rm" }, mandatory = false, help = "remove file") final String rm,
-			@CliOption(key = { "rmr" }, mandatory = false, help = "remove file with recursion") final String rmr,
-			@CliOption(key = { "setrep" }, mandatory = false, help = "set replication number") final String setrep,
-			@CliOption(key = { "stat" }, mandatory = false, help = "return stat information") final String stat,
-			@CliOption(key = { "tail" }, mandatory = false, help = "tail the file") final String tail,
-			@CliOption(key = { "test" }, mandatory = false, help = "check a file") final String test,
-			@CliOption(key = { "text" }, mandatory = false, help = "output the file in text format") final String text,
-			@CliOption(key = { "touchz" }, mandatory = false, help = "create a file of zero lenth") final String touchz) {
-
-		//TODO - should not recreate shell over and over again. 
+	@CliCommand(value = "hdfs get", help = "copy HDFS files to local")
+	public void get(
+			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
+			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest,
+			@CliOption(key = { "ignoreCrc" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether ignore CRC") final boolean ignoreCrc,
+			@CliOption(key = { "crc" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether copy CRC") final boolean crc) {
 		setupShell();
 
-		if (ls != null) {
-			runCommand("-ls", ls);
-			return;
+		List<String> argv = new ArrayList<String>();
+		argv.add("-get");
+		if(ignoreCrc){
+			argv.add("-ignoreCrc");
 		}
-		else if (lsr != null) {
-			runCommand("-lsr", lsr);
-			return;
+		if(crc){
+			argv.add("-crc");
 		}
-		else if (cat != null) {
-			runCommand("-cat", cat);
-			return;
+		argv.add(source);
+		argv.add(dest);
+		run(argv.toArray(new String[0]));
+	}
+	
+	@CliCommand(value = "hdfs moveToLocal", help = "move HDFS files to local")
+	public void moveToLocal(
+			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
+			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest,
+			@CliOption(key = { "crc" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether copy CRC") final boolean crc) {
+		setupShell();
+
+		List<String> argv = new ArrayList<String>();
+		argv.add("-moveToLocal");
+		if(crc){
+			argv.add("-crc");
 		}
-		else if (chgrp != null) {
-			runCommand("-chgrp", chgrp);
-			return;
+		argv.add(source);
+		argv.add(dest);
+		run(argv.toArray(new String[0]));
+	}
+	
+	
+	@CliCommand(value = "hdfs count", help = "Count the number of directories, files, bytes, quota, and remaining quota")
+	public void count(
+			@CliOption(key = { "quota" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean quota,
+			@CliOption(key = { "path" }, mandatory = true, help = " path name") final String path) {
+		setupShell();
+
+		List<String> argv = new ArrayList<String>();
+		argv.add("-count");
+		if(quota){
+			argv.add("-q");
 		}
-		else if (chmod != null) {
-			runCommand("-chmod", chmod);
-			return;
+		String[] fileNames = path.split(" ");
+		argv.addAll(Arrays.asList(fileNames));
+		run(argv.toArray(new String[0]));
+	}
+	
+	@CliCommand(value = "hdfs cp", help = "copy files in the HDFS")
+	public void cp(
+			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
+			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
+		setupShell();
+
+		List<String> argv = new ArrayList<String>();
+		argv.add("-cp");
+		String[] fileNames = source.split(" ");
+		argv.addAll(Arrays.asList(fileNames));
+		argv.add(dest);
+		run(argv.toArray(new String[0]));
+	}
+	
+	@CliCommand(value = "hdfs mv", help = "move files in the HDFS")
+	public void mv(
+			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
+			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
+		setupShell();
+
+		List<String> argv = new ArrayList<String>();
+		argv.add("-mv");
+		String[] fileNames = source.split(" ");
+		argv.addAll(Arrays.asList(fileNames));
+		argv.add(dest);
+		run(argv.toArray(new String[0]));
+	}
+	
+	@CliCommand(value = "hdfs du", help = "display sizes of file")
+	public void du(
+			@CliOption(key = { "" }, mandatory = false, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "directory to be listed") final String path,
+			@CliOption(key = { "summary" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with summary") final boolean summary) {
+		setupShell();
+
+		List<String> argv = new ArrayList<String>();
+		if(summary){
+			argv.add("-dus");
 		}
-		else if (chown != null) {
-			runCommand("-chown", chown);
-			return;
+		else{
+			argv.add("-du");
 		}
-		else if (copyFromLocal != null) {
-			runCommand("-copyFromLocal", copyFromLocal);
-			return;
-		}
-		else if (copyToLocal != null) {
-			runCommand("-copyToLocal", copyToLocal);
-			return;
-		}
-		else if (count != null) {
-			runCommand("-count", count);
-			return;
-		}
-		else if (cp != null) {
-			runCommand("-cp", cp);
-			return;
-		}
-		else if (du != null) {
-			runCommand("-du", du);
-			return;
-		}
-		else if (dus != null) {
-			runCommand("-dus", dus);
-			return;
-		}
-		else if (expunge != null) {
-			runCommand("-expunge", expunge);
-			return;
-		}
-		else if (get != null) {
-			runCommand("-get", get);
-			return;
-		}
-		else if (getmerge != null) {
-			runCommand("-getmerge", getmerge);
-			return;
-		}
-		else if (mkdir != null) {
-			runCommand("-mkdir", mkdir);
-			return;
-		}
-		else if (moveFromLocal != null) {
-			runCommand("-moveFromLocal", moveFromLocal);
-			return;
-		}
-		else if (moveToLocal != null) {
-			runCommand("-moveToLocal", moveToLocal);
-			return;
-		}
-		else if (mv != null) {
-			runCommand("-mv", mv);
-			return;
-		}
-		else if (put != null) {
-			runCommand("-put", put);
-			return;
-		}
-		else if (rm != null) {
-			runCommand("-rm", rm);
-			return;
-		}
-		else if (rmr != null) {
-			runCommand("-rmr", rmr);
-			return;
-		}
-		else if (setrep != null) {
-			runCommand("-setrep", setrep);
-			return;
-		}
-		else if (stat != null) {
-			runCommand("-stat", stat);
-			return;
-		}
-		else if (tail != null) {
-			runCommand("-tail", tail);
-			return;
-		}
-		else if (test != null) {
-			runCommand("-test", test);
-			return;
-		}
-		else if (text != null) {
-			runCommand("-text", text);
-			return;
-		}
-		else if (touchz != null) {
-			runCommand("-touchz", touchz);
-			return;
-		}
+		argv.add(path);
+		run(argv.toArray(new String[0]));
 	}
 
+	/*
+	@CliCommand(value = "hdfs dus", help = "display summary sizes of file")
+	public void dus(
+			@CliOption(key = { "" }, mandatory = false, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "directory to be listed") final String path) {
+		setupShell();
+
+		List<String> argv = new ArrayList<String>();
+		argv.add("-dus");
+		argv.add(path);
+		run(argv.toArray(new String[0]));
+	}
+	*/
+	
+	@CliCommand(value = "hdfs expunge", help = "empty the trash")
+	public void expunge() {
+		setupShell();
+
+		List<String> argv = new ArrayList<String>();
+		argv.add("-expunge");
+		run(argv.toArray(new String[0]));
+	}
+	
+	@CliCommand(value = "hdfs mergeget", help = "merge files")
+	public void getmerge(
+			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
+			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
+		setupShell();
+
+		List<String> argv = new ArrayList<String>();
+		argv.add("-getmerge");
+		String[] fileNames = source.split(" ");
+		argv.addAll(Arrays.asList(fileNames));
+		argv.add(dest);
+		run(argv.toArray(new String[0]));
+	}
+	
+	@CliCommand(value = "hdfs mkdir", help = "create new directory")
+	public void mkdir(
+			@CliOption(key = { "" }, mandatory = true, help = "directory name") final String dir) {
+		setupShell();
+
+		List<String> argv = new ArrayList<String>();
+		argv.add("-mkdir");
+		argv.add(dir);
+		run(argv.toArray(new String[0]));
+	}
+	
+	@CliCommand(value = "hdfs rm", help = "remove files in HDFS")
+	public void rm(
+			@CliOption(key = { "" }, mandatory = false, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "directory to be listed") final String path,
+			@CliOption(key = { "skipTrash" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether skip trash") final boolean skipTrash,
+			@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive) {
+		setupShell();
+		List<String> argv = new ArrayList<String>();
+		if(recursive){
+			argv.add("-rmr");
+		}
+		else{
+			argv.add("-rm");
+		}
+		if(skipTrash){
+			argv.add("-skipTrash");
+		}
+		argv.add(path);
+		run(argv.toArray(new String[0]));
+	}
+	
+	
+	@CliCommand(value = "hdfs setrep", help = "set replication number")
+	public void setrep(
+			@CliOption(key = { "replica" }, mandatory = true, help = "source file names") final int replica,
+			@CliOption(key = { "path" }, mandatory = true, help = " path name") final String path,
+			@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive,
+			@CliOption(key = { "waiting" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether enable waiting list") final boolean waiting) {
+		setupShell();
+
+		List<String> argv = new ArrayList<String>();
+		argv.add("-setrep");
+		if(recursive){
+			argv.add("-R");
+		}
+		if(waiting){
+			argv.add("-w");
+		}
+		argv.add(String.valueOf(replica));
+		argv.add(path);
+		run(argv.toArray(new String[0]));
+	}
+	
+	@CliCommand(value = "hdfs tail", help = "tails file in HDFS")
+	public void tail(
+			@CliOption(key = { "" }, mandatory = true, help = "file to be tailed") final String path,
+			@CliOption(key = { "file" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether show content while file grow") final boolean file) {
+		setupShell();
+		List<String> argv = new ArrayList<String>();
+		argv.add("-tail");
+		if(file){
+			argv.add("-f");
+		}
+		argv.add(path);
+		run(argv.toArray(new String[0]));
+	}
+	
+	@CliCommand(value = "hdfs test", help = "test file in HDFS")
+	public void test(
+			@CliOption(key = { "" }, mandatory = true, help = "file to be tested") final String path,
+			@CliOption(key = { "exist" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether the file exit") final boolean exist,
+			@CliOption(key = { "zero" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether the file has zero length") final boolean zero,
+			@CliOption(key = { "dir" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether the file is directory") final boolean directory
+			) {
+		setupShell();
+		List<String> argv = new ArrayList<String>();
+		argv.add("-test");
+		if(exist){
+			argv.add("-e");
+		}
+		if(zero){
+			argv.add("-z");
+		}
+		if(directory){
+			argv.add("-d");
+		}
+		argv.add(path);
+		run(argv.toArray(new String[0]));
+	}
+	
+	@CliCommand(value = "hdfs text", help = "show the text content")
+	public void text(
+			@CliOption(key = { "" }, mandatory = true, help = "file to be showed") final String path) {
+		setupShell();
+		List<String> argv = new ArrayList<String>();
+		argv.add("-text");
+		argv.add(path);
+		run(argv.toArray(new String[0]));
+	}
+	
+	@CliCommand(value = "hdfs touchz", help = "touch the file")
+	public void touchz(
+			@CliOption(key = { "" }, mandatory = true, help = "file to be touched") final String path) {
+		setupShell();
+		List<String> argv = new ArrayList<String>();
+		argv.add("-touchz");
+		argv.add(path);
+		run(argv.toArray(new String[0]));
+	}
+	
 	/**
 	 * @param value
 	 */
