@@ -7,4 +7,6 @@
 
 	<context:component-scan base-package="org.springframework.data.hadoop.impala.mapreduce.commands"/>
 
+	<bean class="org.springframework.data.hadoop.impala.mapreduce.JobConfiguration"/>
+	
 </beans>
