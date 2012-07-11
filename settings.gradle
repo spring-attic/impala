@@ -3,8 +3,3 @@ rootProject.name = 'impala'
 include 'plugin-common'
 include 'plugin-hdfs'
 include 'plugin-mapreduce'
-include 'plugin-hive'
-include 'samples:simple'
-
-
-
