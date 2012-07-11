@@ -9,7 +9,7 @@ repositories {
 dependencies {
 	compile "org.springframework.data.hadoop.impala:plugin-hdfs:$impalaVersion"
 	compile "org.springframework.data.hadoop.impala:plugin-mapreduce:$impalaVersion"
-	compile "org.springframework.data.hadoop.impala:plugin-hive:$impalaVersion"
+	//compile "org.springframework.data.hadoop.impala:plugin-hive:$impalaVersion"
 	compile "org.apache.hadoop:hadoop-core:$hadoopVersion"
 }
 
