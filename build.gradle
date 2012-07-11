@@ -8,8 +8,8 @@ allprojects {
 	apply plugin: 'java'
 	apply plugin: 'eclipse'
 
-    sourceCompatibility=1.5
-    targetCompatibility=1.5
+    sourceCompatibility=1.6
+    targetCompatibility=1.6
 
 	repositories {
 		maven { url "http://repo.springsource.org/libs-snapshot" }
@@ -92,12 +92,6 @@ configure(rootProject) {
 
     // don't publish the default jar for the root project
     configurations.archives.artifacts.clear()
-
-    dependencies { // for integration tests
-        testCompile project(":plugin-common")
-        testCompile project(":plugin-hdfs")
-        testCompile project(":plugin-mapreduce")
-    }
 
     task api(type: Javadoc) {
         group = 'Documentation'
