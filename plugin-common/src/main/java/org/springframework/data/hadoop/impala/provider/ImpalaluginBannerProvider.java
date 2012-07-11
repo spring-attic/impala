@@ -40,16 +40,25 @@ public class ImpalaluginBannerProvider extends DefaultBannerProvider
 	@CliCommand(value = { "version" }, help = "Displays current CLI version")
 	public String getBanner() {
 		StringBuffer buf = new StringBuffer();
-		buf.append("=======================================" + StringUtils.LINE_SEPARATOR);
-		buf.append("*                                      *"+ StringUtils.LINE_SEPARATOR);
-		buf.append("*                                      *"+ StringUtils.LINE_SEPARATOR);
-		buf.append("*      CLI Plugin from Impala          *" +StringUtils.LINE_SEPARATOR);
-		buf.append("*                                      *"+ StringUtils.LINE_SEPARATOR);
-		buf.append("*                                      *"+ StringUtils.LINE_SEPARATOR);
-		buf.append("=======================================" + StringUtils.LINE_SEPARATOR);
+//		buf.append("=======================================buf.append("
+//		buf.append("*                                      *"+ StringUtils.LINE_SEPARATOR);
+//		buf.append("*                                      *"+ StringUtils.LINE_SEPARATOR);
+//		buf.append("*      CLI Plugin from Impala          *" +StringUtils.LINE_SEPARATOR);
+//		buf.append("*                                      *"+ StringUtils.LINE_SEPARATOR);
+//		buf.append("*                                      *"+ StringUtils.LINE_SEPARATOR);
+//		buf.append("=======================================" + StringUtils.LINE_SEPARATOR);
+		
+		buf.append("_________ _______  _______  _______  _        _______ " + StringUtils.LINE_SEPARATOR);
+		buf.append("\\__   __/(       )(  ____ )(  ___  )( \\      (  ___  )" + StringUtils.LINE_SEPARATOR);
+		buf.append("   ) (   | () () || (    )|| (   ) || (      | (   ) |" + StringUtils.LINE_SEPARATOR);
+		buf.append("   | |   | || || || (____)|| (___) || |      | (___) |" + StringUtils.LINE_SEPARATOR);
+		buf.append("   | |   | |(_)| ||  _____)|  ___  || |      |  ___  |" + StringUtils.LINE_SEPARATOR);
+		buf.append("   | |   | |   | || (      | (   ) || |      | (   ) |" + StringUtils.LINE_SEPARATOR);
+		buf.append("___) (___| )   ( || )      | )   ( || (____/\\| )   ( |" + StringUtils.LINE_SEPARATOR);
+		buf.append("\\_______/|/     \\||/       |/     \\|(_______/|/     \\|" + StringUtils.LINE_SEPARATOR);
+		
 		buf.append("Verson:" + this.getVersion());
 		return buf.toString();
-
 	}
 
 	/* (non-Javadoc)

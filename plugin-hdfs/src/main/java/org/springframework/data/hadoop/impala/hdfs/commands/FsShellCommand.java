@@ -86,13 +86,6 @@ public class FsShellCommand implements CommandMarker {
 		}
 	}
 
-	/*
-	@CliCommand(value = "hdfs lsr", help = "list files in HDFS with recursion")
-	public void lsr(@CliOption(key = { "" }, mandatory = false, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "directory to be listed") final String path) {
-		setupShell();
-		runCommand("-lsr", path);
-	}
-	*/
 
 	@CliCommand(value = "hdfs cat", help = "show file content")
 	public void cat(@CliOption(key = { "" }, mandatory = true, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "file name to be showed") final String path) {
@@ -298,19 +291,6 @@ public class FsShellCommand implements CommandMarker {
 		argv.add(path);
 		run(argv.toArray(new String[0]));
 	}
-
-	/*
-	@CliCommand(value = "hdfs dus", help = "display summary sizes of file")
-	public void dus(
-			@CliOption(key = { "" }, mandatory = false, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "directory to be listed") final String path) {
-		setupShell();
-
-		List<String> argv = new ArrayList<String>();
-		argv.add("-dus");
-		argv.add(path);
-		run(argv.toArray(new String[0]));
-	}
-	*/
 	
 	@CliCommand(value = "hdfs expunge", help = "empty the trash")
 	public void expunge() {
@@ -321,21 +301,6 @@ public class FsShellCommand implements CommandMarker {
 		run(argv.toArray(new String[0]));
 	}
 	
-	/*
-	@CliCommand(value = "hdfs mergeget", help = "merge files")
-	public void getmerge(
-			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
-			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
-		setupShell();
-
-		List<String> argv = new ArrayList<String>();
-		argv.add("-getmerge");
-		String[] fileNames = source.split(" ");
-		argv.addAll(Arrays.asList(fileNames));
-		argv.add(dest);
-		run(argv.toArray(new String[0]));
-	}
-	*/
 	
 	@CliCommand(value = "hdfs mkdir", help = "create new directory")
 	public void mkdir(
