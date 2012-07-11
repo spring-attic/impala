@@ -13,31 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.springframework.data.hadoop.impala.hdfs.provider;
+package org.springframework.data.hadoop.impala.provider;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.shell.plugin.support.DefaultHistoryFileNameProvider;
+import org.springframework.shell.plugin.support.DefaultPromptProvider;
 import org.springframework.stereotype.Component;
 
 /**
- * history file name provider to customize Spring Shell's log file 
+ * Propmpt provider to customize Spring Shell's prompt text
  * 
  * @author Jarred Li
  *
  */
 @Component
 @Order(Ordered.LOWEST_PRECEDENCE)
-public class HDFSPluginHistoryFileNameProvider extends DefaultHistoryFileNameProvider{
+public class ImpalaPluginPromptProvider extends DefaultPromptProvider {
 
-	public String getHistoryFileName() {
-		return "hdfs-cli.log";
-	}
-
-	@Override
-	public String name() {
-		return "hdfs cli history file name provider";
+	/* (non-Javadoc)
+	 * @see org.springframework.shell.plugin.PromptProvider#getPromptText()
+	 */
+	public String getPromptText() {		
+		return "Impala-CLI>";
 	}
 	
+	@Override
+	public String name() {
+		return "impala cli prompt provider";
+	}
+
 }

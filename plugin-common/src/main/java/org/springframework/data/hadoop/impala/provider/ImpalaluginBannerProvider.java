@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.data.hadoop.impala.hdfs.provider;
+package org.springframework.data.hadoop.impala.provider;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Order(Ordered.LOWEST_PRECEDENCE)
-public class HDFSPluginBannerProvider extends DefaultBannerProvider 
+public class ImpalaluginBannerProvider extends DefaultBannerProvider 
 				implements CommandMarker {
 
 	/* (non-Javadoc)
@@ -43,7 +43,7 @@ public class HDFSPluginBannerProvider extends DefaultBannerProvider
 		buf.append("=======================================" + StringUtils.LINE_SEPARATOR);
 		buf.append("*                                      *"+ StringUtils.LINE_SEPARATOR);
 		buf.append("*                                      *"+ StringUtils.LINE_SEPARATOR);
-		buf.append("*      CLI Plugin for HDFS             *" +StringUtils.LINE_SEPARATOR);
+		buf.append("*      CLI Plugin from Impala          *" +StringUtils.LINE_SEPARATOR);
 		buf.append("*                                      *"+ StringUtils.LINE_SEPARATOR);
 		buf.append("*                                      *"+ StringUtils.LINE_SEPARATOR);
 		buf.append("=======================================" + StringUtils.LINE_SEPARATOR);
@@ -63,12 +63,12 @@ public class HDFSPluginBannerProvider extends DefaultBannerProvider
 	 * @see org.springframework.shell.plugin.BannerProvider#getWelcomeMessage()
 	 */
 	public String getWelcomeMessage() {
-		return "Welcome to HDFS CLI";
+		return "Welcome to Imapala Hadoop CLI";
 	}
 	
 	@Override
 	public String name() {
-		return "hdfs cli banner provider";
+		return "impala cli banner provider";
 	}
 	
 

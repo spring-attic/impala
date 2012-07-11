@@ -1,5 +1,5 @@
 
-description = 'Impala MapReduce plugin'
+description = 'Impala HDFS plugin'
 apply plugin: 'eclipse'
 apply from: '../maven.gradle'
 
@@ -8,15 +8,17 @@ repositories {
 }
 
 dependencies {
-	compile project(':plugin-common')
 	compile "org.springframework.shell:spring-shell:$springShellVersion"
 	compile "org.apache.hadoop:hadoop-core:$hadoopVersion"
+
+	runtime "javax.ws.rs:jsr311-api:$jsr311Version"
 }
+
 
 
 eclipse {
 	project {
-		name = "impala-plugin-mapreduce"
+		name = "impala-plugin-common"
 	}
 }
 

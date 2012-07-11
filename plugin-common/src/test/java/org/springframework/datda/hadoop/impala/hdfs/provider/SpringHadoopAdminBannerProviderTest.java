@@ -19,7 +19,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.data.hadoop.impala.hdfs.provider.HDFSPluginBannerProvider;
+import org.springframework.data.hadoop.impala.provider.ImpalaluginBannerProvider;
 
 
 /**
@@ -28,7 +28,7 @@ import org.springframework.data.hadoop.impala.hdfs.provider.HDFSPluginBannerProv
  */
 public class SpringHadoopAdminBannerProviderTest{
 
-	private HDFSPluginBannerProvider bannerProvider;
+	private ImpalaluginBannerProvider bannerProvider;
 	
 
 	/**
@@ -36,7 +36,7 @@ public class SpringHadoopAdminBannerProviderTest{
 	 */
 	@Before
 	public void setUp() throws Exception {
-		bannerProvider = new HDFSPluginBannerProvider();
+		bannerProvider = new ImpalaluginBannerProvider();
 	}
 
 	/**
@@ -49,7 +49,7 @@ public class SpringHadoopAdminBannerProviderTest{
 
 
 	/**
-	 * Test method for {@link org.springframework.data.hadoop.impala.hdfs.provider.HDFSPluginBannerProvider#getBanner()}.
+	 * Test method for {@link org.springframework.data.hadoop.impala.provider.ImpalaluginBannerProvider#getBanner()}.
 	 */
 	@Test
 	public void testGetBanner() {
@@ -58,7 +58,7 @@ public class SpringHadoopAdminBannerProviderTest{
 	}
 
 	/**
-	 * Test method for {@link org.springframework.data.hadoop.impala.hdfs.provider.HDFSPluginBannerProvider#getVersion()}.
+	 * Test method for {@link org.springframework.data.hadoop.impala.provider.ImpalaluginBannerProvider#getVersion()}.
 	 */
 	@Test
 	public void testGetVersion() {
@@ -67,7 +67,7 @@ public class SpringHadoopAdminBannerProviderTest{
 	}
 
 	/**
-	 * Test method for {@link org.springframework.data.hadoop.impala.hdfs.provider.HDFSPluginBannerProvider#getWelcomMessage()}.
+	 * Test method for {@link org.springframework.data.hadoop.impala.provider.ImpalaluginBannerProvider#getWelcomMessage()}.
 	 */
 	@Test
 	public void testGetWelcomMessage() {
@@ -76,7 +76,7 @@ public class SpringHadoopAdminBannerProviderTest{
 	}
 
 	/**
-	 * Test method for {@link org.springframework.data.hadoop.impala.hdfs.provider.HDFSPluginBannerProvider#name()}.
+	 * Test method for {@link org.springframework.data.hadoop.impala.provider.ImpalaluginBannerProvider#name()}.
 	 */
 	@Test
 	public void testName() {

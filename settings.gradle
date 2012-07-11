@@ -1,5 +1,6 @@
 rootProject.name = 'impala'
 
+include 'plugin-common'
 include 'plugin-hdfs'
 include 'plugin-mapreduce'
 include 'samples:simple'

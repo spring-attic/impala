@@ -8,6 +8,7 @@ repositories {
 }
 
 dependencies {
+	compile project(':plugin-common')
 	compile "org.springframework.shell:spring-shell:$springShellVersion"
 	compile "org.apache.hadoop:hadoop-core:$hadoopVersion"
 

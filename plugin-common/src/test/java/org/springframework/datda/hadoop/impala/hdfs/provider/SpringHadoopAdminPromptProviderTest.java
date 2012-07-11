@@ -19,21 +19,22 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.data.hadoop.impala.hdfs.provider.HDFSPluginHistoryFileNameProvider;
+import org.springframework.data.hadoop.impala.provider.ImpalaPluginPromptProvider;
 
 /**
  * @author Jarred Li
  *
  */
-public class SpringHadoopAdminHistoryFileNameProviderTest {
+public class SpringHadoopAdminPromptProviderTest {
 
-	private HDFSPluginHistoryFileNameProvider fileNameProvider;
+	private ImpalaPluginPromptProvider provider;
+
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
-		fileNameProvider = new HDFSPluginHistoryFileNameProvider(); 
+		provider = new ImpalaPluginPromptProvider();
 	}
 
 	/**
@@ -41,24 +42,24 @@ public class SpringHadoopAdminHistoryFileNameProviderTest {
 	 */
 	@After
 	public void tearDown() throws Exception {
-		fileNameProvider = null;
+		provider = null;
 	}
 
 	/**
-	 * Test method for {@link org.springframework.data.hadoop.impala.hdfs.provider.HDFSPluginHistoryFileNameProvider#getHistoryFileName()}.
+	 * Test method for {@link org.springframework.data.hadoop.impala.provider.ImpalaPluginPromptProvider#getPromptText()}.
 	 */
 	@Test
-	public void testGetHistoryFileName() {
-		String fileName = fileNameProvider.getHistoryFileName();
-		Assert.assertNotNull(fileName);
+	public void testGetPromptText() {
+		String prompt = provider.getPromptText();
+		Assert.assertNotNull(prompt);
 	}
 
 	/**
-	 * Test method for {@link org.springframework.data.hadoop.impala.hdfs.provider.HDFSPluginHistoryFileNameProvider#name()}.
+	 * Test method for {@link org.springframework.data.hadoop.impala.provider.ImpalaPluginPromptProvider#name()}.
 	 */
 	@Test
 	public void testName() {
-		String name = fileNameProvider.name();
+		String name = provider.name();
 		Assert.assertNotNull(name);
 	}
 
