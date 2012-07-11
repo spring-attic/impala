@@ -1,19 +1,7 @@
 
-description = 'Impala HDFS plugin'
+description = 'Impala common plugin'
 apply plugin: 'eclipse'
 apply from: '../maven.gradle'
-
-repositories {
-	maven { url "http://spring-roo-repository.springsource.org/release" }
-}
-
-dependencies {
-	compile "org.springframework.shell:spring-shell:$springShellVersion"
-	compile "org.apache.hadoop:hadoop-core:$hadoopVersion"
-
-	runtime "javax.ws.rs:jsr311-api:$jsr311Version"
-}
-
 
 
 eclipse {

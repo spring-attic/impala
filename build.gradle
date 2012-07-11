@@ -12,9 +12,12 @@ allprojects {
 	repositories {
 		mavenCentral()
 		maven { url "http://repo.springsource.org/snapshot" }
+		maven { url "http://spring-roo-repository.springsource.org/release" }
 	}
 
 	dependencies {
+		compile "org.springframework.shell:spring-shell:$springShellVersion"
+		compile "org.apache.hadoop:hadoop-core:$hadoopVersion"
 		compile "commons-configuration:commons-configuration:$commonsConfigVersion"
 		compile "org.codehaus.jackson:jackson-core-asl:$jacksonVersion"
 		compile "org.codehaus.jackson:jackson-mapper-asl:$jacksonVersion"

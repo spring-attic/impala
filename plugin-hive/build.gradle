@@ -1,0 +1,24 @@
+
+description = 'Impala MapReduce plugin'
+apply plugin: 'eclipse'
+apply from: '../maven.gradle'
+
+repositories {
+	maven { url "http://spring-roo-repository.springsource.org/release" }
+}
+
+dependencies {
+	compile project(':plugin-common')
+	compile "org.springframework.shell:spring-shell:$springShellVersion"
+	compile "org.apache.hadoop:hadoop-core:$hadoopVersion"
+}
+
+
+eclipse {
+	project {
+		name = "impala-plugin-hive"
+	}
+}
+
+
+defaultTasks 'clean', 'build'

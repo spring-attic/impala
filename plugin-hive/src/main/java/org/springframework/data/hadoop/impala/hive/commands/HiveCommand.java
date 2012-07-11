@@ -13,32 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.data.hadoop.impala.mapreduce.commands;
+package org.springframework.data.hadoop.impala.hive.commands;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.hadoop.impala.mapreduce.JobConfiguration;
+import org.springframework.data.hadoop.impala.hive.HiveConfiguration;
 import org.springframework.roo.shell.CliCommand;
 import org.springframework.roo.shell.CliOption;
 import org.springframework.roo.shell.CommandMarker;
 import org.springframework.stereotype.Component;
 
 /**
- * @author Jarred Li
+ * Commands to submit and interact with MapReduce jobs
+ * 
  *
  */
 @Component
-public class JobTargetCommand implements CommandMarker {
+public class HiveCommand implements CommandMarker {
+
+	private boolean initialized;
 
 	@Autowired
-	private JobConfiguration jobConfiguration;
+	private HiveConfiguration hiveConfiguration;
 
-	@CliCommand(value = "mr target", help = "set Job Tracker URL")
-	public void setJobTracker(@CliOption(key = { "url" }, mandatory = true, help = "Job Tracker URL") final String url) {
-		jobConfiguration.setJobTracker(url);
+
+
+	@CliCommand(value = "hive script", help = "run hive script")
+	public void submit(@CliOption(key = { "scriptfile" }, mandatory = true, help = "the hive script file") final String scriptFile) {
+		setupHiveClient();
+
 	}
 
-	@CliCommand(value = "mr info", help = "show Job Tracker URL")
-	public void showJobTracker() {
-		System.out.println("Job Tracker URL:" + jobConfiguration.getJobTracker());
+
+	private void setupHiveClient() {
+		if (!initialized) {
+
+			initialized = true;
+		}
 	}
+
+
 }
