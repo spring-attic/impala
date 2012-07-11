@@ -21,7 +21,7 @@ import java.util.Map;
 
 public class HdfsConfiguration {
 
-	private static final String DFS_KEY = "dfs.default.name";
+	private static final String DFS_KEY = "fs.default.name";
 	
 	private static final String DEFAULT_DFS_NAME = "webhdfs://localhost:50070";
 	

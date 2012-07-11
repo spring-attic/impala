@@ -404,7 +404,7 @@ public class FsShellCommand implements CommandMarker {
 		try {
 			shell.run(argv);
 		} catch (Exception e) {
-			LOGGER.warning("run HDFS shell failed. " + e.getMessage());
+			System.err.println("run HDFS shell failed. " + e.getMessage());
 		}
 	}
 
