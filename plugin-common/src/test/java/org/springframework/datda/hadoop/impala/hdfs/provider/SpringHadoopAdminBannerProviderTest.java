@@ -19,7 +19,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.data.hadoop.impala.provider.ImpalaluginBannerProvider;
+import org.springframework.data.hadoop.impala.provider.ImpalaPluginBannerProvider;
 
 
 /**
@@ -28,7 +28,7 @@ import org.springframework.data.hadoop.impala.provider.ImpalaluginBannerProvider
  */
 public class SpringHadoopAdminBannerProviderTest{
 
-	private ImpalaluginBannerProvider bannerProvider;
+	private ImpalaPluginBannerProvider bannerProvider;
 	
 
 	/**
@@ -36,7 +36,7 @@ public class SpringHadoopAdminBannerProviderTest{
 	 */
 	@Before
 	public void setUp() throws Exception {
-		bannerProvider = new ImpalaluginBannerProvider();
+		bannerProvider = new ImpalaPluginBannerProvider();
 	}
 
 	/**
@@ -49,7 +49,7 @@ public class SpringHadoopAdminBannerProviderTest{
 
 
 	/**
-	 * Test method for {@link org.springframework.data.hadoop.impala.provider.ImpalaluginBannerProvider#getBanner()}.
+	 * Test method for {@link org.springframework.data.hadoop.impala.provider.ImpalaPluginBannerProvider#getBanner()}.
 	 */
 	@Test
 	public void testGetBanner() {
@@ -58,7 +58,7 @@ public class SpringHadoopAdminBannerProviderTest{
 	}
 
 	/**
-	 * Test method for {@link org.springframework.data.hadoop.impala.provider.ImpalaluginBannerProvider#getVersion()}.
+	 * Test method for {@link org.springframework.data.hadoop.impala.provider.ImpalaPluginBannerProvider#getVersion()}.
 	 */
 	@Test
 	public void testGetVersion() {
@@ -67,7 +67,7 @@ public class SpringHadoopAdminBannerProviderTest{
 	}
 
 	/**
-	 * Test method for {@link org.springframework.data.hadoop.impala.provider.ImpalaluginBannerProvider#getWelcomMessage()}.
+	 * Test method for {@link org.springframework.data.hadoop.impala.provider.ImpalaPluginBannerProvider#getWelcomMessage()}.
 	 */
 	@Test
 	public void testGetWelcomMessage() {
@@ -76,7 +76,7 @@ public class SpringHadoopAdminBannerProviderTest{
 	}
 
 	/**
-	 * Test method for {@link org.springframework.data.hadoop.impala.provider.ImpalaluginBannerProvider#name()}.
+	 * Test method for {@link org.springframework.data.hadoop.impala.provider.ImpalaPluginBannerProvider#name()}.
 	 */
 	@Test
 	public void testName() {
