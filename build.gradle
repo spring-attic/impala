@@ -8,17 +8,20 @@ allprojects {
 	apply plugin: 'java'
 	apply plugin: 'eclipse'
 
-    sourceCompatibility=1.6
-    targetCompatibility=1.6
-
 	repositories {
 		maven { url "http://repo.springsource.org/libs-snapshot" }
 		maven { url "http://spring-roo-repository.springsource.org/release" }
 	}
 
 	dependencies {
+       	compile "org.apache.hadoop:hadoop-core:$hadoopVersion"
+       	compile "org.springframework.shell:spring-shell:$springShellVersion"
+
 		testCompile "junit:junit:$junitVersion"
 	}
+	
+    sourceCompatibility = 1.6
+    targetCompatibility = 1.6
 }
 
 configure(subprojects) { subproject ->
@@ -61,10 +64,6 @@ configure(subprojects) { subproject ->
 
 project('plugin-common') {
     description = 'Impala Common plugin'
-    dependencies {
-       	compile "org.apache.hadoop:hadoop-core:$hadoopVersion"
-       	compile "org.springframework.shell:spring-shell:$springShellVersion"
-    }
 }
 
 project('plugin-hdfs') {
@@ -85,7 +84,14 @@ project('plugin-mapreduce') {
 project('plugin-hive') {
 	description = 'Impala Hive plugin'
 	dependencies {
-		   compile project(':plugin-common')
+		compile project(':plugin-common')
+	}
+}
+
+project('plugin-pig') {
+	description = 'Impala Hive plugin'
+	dependencies {
+		compile project(':plugin-common')
 	}
 }
 
@@ -224,13 +230,14 @@ configure(rootProject) {
 apply plugin: 'application'
 
 mainClassName = "org.springframework.shell.Bootstrap"
-startScripts.classpath += files(subprojects.collect { project ->
-   project.sourceSets.main.compileClasspath
+startScripts.classpath += files(subprojects.collect { subproject ->
+   subproject.configurations.default.allArtifacts.files
 })
+
 applicationDistribution.with {
     into("lib") {
-        from files(subprojects.collect { project ->
-            project.sourceSets.main.compileClasspath
+        from files(subprojects.collect { subproject ->
+            subproject.configurations.default.allArtifacts.files
         })
     } 
 }
