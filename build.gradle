@@ -89,12 +89,12 @@ project('plugin-hive') {
 	}
 }
 
-project('plugin-pig') {
-	description = 'Impala Hive plugin'
-	dependencies {
-		compile project(':plugin-common')
-	}
-}
+//project('plugin-pig') {
+//	description = 'Impala Hive plugin'
+//	dependencies {
+//		compile project(':plugin-common')
+//	}
+//}
 
 configure(rootProject) {
     description = 'Impala'
