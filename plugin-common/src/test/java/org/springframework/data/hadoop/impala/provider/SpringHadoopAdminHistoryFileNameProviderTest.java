@@ -13,28 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.datda.hadoop.impala.hdfs.provider;
+package org.springframework.data.hadoop.impala.provider;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.data.hadoop.impala.provider.ImpalaPluginPromptProvider;
+import org.springframework.data.hadoop.impala.provider.ImpalaPluginHistoryFileNameProvider;
 
 /**
  * @author Jarred Li
  *
  */
-public class SpringHadoopAdminPromptProviderTest {
+public class SpringHadoopAdminHistoryFileNameProviderTest {
 
-	private ImpalaPluginPromptProvider provider;
-
+	private ImpalaPluginHistoryFileNameProvider fileNameProvider;
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
-		provider = new ImpalaPluginPromptProvider();
+		fileNameProvider = new ImpalaPluginHistoryFileNameProvider(); 
 	}
 
 	/**
@@ -42,24 +41,24 @@ public class SpringHadoopAdminPromptProviderTest {
 	 */
 	@After
 	public void tearDown() throws Exception {
-		provider = null;
+		fileNameProvider = null;
 	}
 
 	/**
-	 * Test method for {@link org.springframework.data.hadoop.impala.provider.ImpalaPluginPromptProvider#getPromptText()}.
+	 * Test method for {@link org.springframework.data.hadoop.impala.provider.ImpalaPluginHistoryFileNameProvider#getHistoryFileName()}.
 	 */
 	@Test
-	public void testGetPromptText() {
-		String prompt = provider.getPrompt();
-		Assert.assertNotNull(prompt);
+	public void testGetHistoryFileName() {
+		String fileName = fileNameProvider.getHistoryFileName();
+		Assert.assertNotNull(fileName);
 	}
 
 	/**
-	 * Test method for {@link org.springframework.data.hadoop.impala.provider.ImpalaPluginPromptProvider#name()}.
+	 * Test method for {@link org.springframework.data.hadoop.impala.provider.ImpalaPluginHistoryFileNameProvider#name()}.
 	 */
 	@Test
 	public void testName() {
-		String name = provider.name();
+		String name = fileNameProvider.name();
 		Assert.assertNotNull(name);
 	}
 

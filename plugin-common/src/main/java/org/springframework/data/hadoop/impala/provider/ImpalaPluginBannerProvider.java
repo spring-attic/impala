@@ -45,7 +45,7 @@ public class ImpalaPluginBannerProvider implements BannerProvider, CommandMarker
 		buf.append("___) (___| )   ( || )      | )   ( || (____/\\| )   ( |" + StringUtils.LINE_SEPARATOR);
 		buf.append("\\_______/|/     \\||/       |/     \\|(_______/|/     \\|" + StringUtils.LINE_SEPARATOR);
 
-		buf.append("Verson:" + this.getVersion());
+		buf.append("Version:" + this.getVersion());
 		return buf.toString();
 	}
 
