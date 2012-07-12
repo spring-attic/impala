@@ -52,7 +52,7 @@ public class ConfigurationCommands implements CommandMarker {
 	@CliCommand(value = { PREFIX + "props set" }, help = "Sets the value for the given Hadoop property - <name=value>")
 	public void setProperty(@CliOption(key = { "value" }, mandatory = true, help = "<name=value>") String nameAndValue) {
 		int i = nameAndValue.indexOf("=");
-		Assert.isFalse(i >= 0, "invalid format");
+		Assert.isTrue(i >= 0, "invalid format");
 		String name = nameAndValue.substring(0, i);
 		Assert.hasText(name, "a valid name is required");
 		String value = nameAndValue.substring(i + 1);
