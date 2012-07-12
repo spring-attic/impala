@@ -71,6 +71,7 @@ project('plugin-hdfs') {
     description = 'Impala HDFS plugin'
     dependencies {
         compile project(':plugin-common')
+		runtime "javax.ws.rs:jsr311-api:$jsr311Version"
     }
 }
 
@@ -79,6 +80,13 @@ project('plugin-mapreduce') {
     dependencies {
        	compile project(':plugin-common')
     }
+}
+
+project('plugin-hive') {
+	description = 'Impala Hive plugin'
+	dependencies {
+		   compile project(':plugin-common')
+	}
 }
 
 configure(rootProject) {

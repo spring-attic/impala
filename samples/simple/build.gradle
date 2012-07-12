@@ -2,13 +2,10 @@ description = 'Spring Hadoop Admin CLI admin plugin'
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
-<<<<<<< HEAD
-=======
 repositories {
-    maven { url "http://repo.springsource.org/libs-snapshot" }
+	maven { url "http://repo.springsource.org/libs-snapshot" }
 	maven { url "http://spring-roo-repository.springsource.org/release" }
 }
->>>>>>> 7f88d21aa6dbfd945d8dc9611a8aec4e1bf291ba
 
 dependencies {
 	compile "org.springframework.data.hadoop.impala:plugin-hdfs:$impalaVersion"
