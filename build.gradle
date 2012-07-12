@@ -14,7 +14,8 @@ allprojects {
 	}
 
 	dependencies {
-       	compile "org.apache.hadoop:hadoop-core:$hadoopVersion"
+        compile "org.apache.hadoop:hadoop-core:$hadoopVersion"
+       	compile "org.springframework.data:spring-data-hadoop:$shdpVersion"
        	compile "org.springframework.shell:spring-shell:$springShellVersion"
 
 		testCompile "junit:junit:$junitVersion"
