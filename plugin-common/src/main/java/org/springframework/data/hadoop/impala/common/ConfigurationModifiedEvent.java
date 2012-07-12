@@ -13,30 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.data.hadoop.impala.hdfs;
+package org.springframework.data.hadoop.impala.common;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.hadoop.conf.Configuration;
+import org.springframework.context.ApplicationEvent;
 
+/**
+ * Notification event that a Configuration object (attached) has been modified.
+ *  
+ * @author Costin Leau
+ */
+public class ConfigurationModifiedEvent extends ApplicationEvent {
 
-public class HdfsConfiguration {
+	private static final long serialVersionUID = -1816900082971150722L;
 
-	private static final String DFS_KEY = "fs.default.name";
-	
-	private static final String DEFAULT_DFS_NAME = "webhdfs://localhost:50070";
-	
-	private Map<String, String> props = new HashMap<String, String>();
-	
-	public void setDfsName(String dfsName) {
-		props.put(DFS_KEY, dfsName);
-
+	public ConfigurationModifiedEvent(Configuration config) {
+		super(config);
 	}
 
-	public String getDfsName() {
-		if (props.containsKey(DFS_KEY)){
-			return props.get(DFS_KEY);
-		}
-		return DEFAULT_DFS_NAME;
-		
+	public Configuration getConfiguration() {
+		return (Configuration) this.getSource();
 	}
 }

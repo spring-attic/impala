@@ -21,10 +21,14 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.data.hadoop.configuration.ConfigurationUtils;
 import org.springframework.roo.shell.CliCommand;
 import org.springframework.roo.shell.CliOption;
 import org.springframework.roo.shell.CommandMarker;
+import org.springframework.roo.shell.ParseResult;
+import org.springframework.shell.ExecutionProcessor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -35,13 +39,14 @@ import org.springframework.util.Assert;
  * @author Costin Leau
  */
 @Component
-public class ConfigurationCommands implements CommandMarker {
+public class ConfigurationCommands implements ApplicationEventPublisherAware, CommandMarker, ExecutionProcessor {
 
 	private static Logger log = Logger.getLogger(ConfigurationCommands.class.getName());
 	private static final String PREFIX = "cfg ";
 
 	@Autowired
 	private Configuration hadoopConfiguration;
+	private ApplicationEventPublisher applicationEventPublisher;
 
 	@CliCommand(value = { PREFIX + "load" }, help = "Loads the Hadoop configuration from the given resource")
 	public void loadConfiguration(@CliOption(key = { "", "location" }, mandatory = true, help = "Configuration location (can be a URL)") String location) {
@@ -50,12 +55,12 @@ public class ConfigurationCommands implements CommandMarker {
 	}
 
 	@CliCommand(value = { PREFIX + "props set" }, help = "Sets the value for the given Hadoop property - <name=value>")
-	public void setProperty(@CliOption(key = { "value" }, mandatory = true, help = "<name=value>") String nameAndValue) {
-		int i = nameAndValue.indexOf("=");
+	public void setProperty(@CliOption(key = { "", "property" }, mandatory = true, help = "<name=value>") String property) {
+		int i = property.indexOf("=");
 		Assert.isTrue(i >= 0, "invalid format");
-		String name = nameAndValue.substring(0, i);
+		String name = property.substring(0, i);
 		Assert.hasText(name, "a valid name is required");
-		String value = nameAndValue.substring(i + 1);
+		String value = property.substring(i + 1);
 
 		hadoopConfiguration.set(name, value);
 	}
@@ -78,5 +83,32 @@ public class ConfigurationCommands implements CommandMarker {
 	@CliCommand(value = { PREFIX + "jt" }, help = "Sets the Hadoop job tracker - can be 'local' or <jobtracker:port>")
 	public void setJt(@CliOption(key = { "", "namenode" }, mandatory = true, help = "Job tracker address - local|<jobtracker:port>") String jobtracker) {
 		hadoopConfiguration.set("mapred.job.tracker", jobtracker);
+	}
+
+	@Override
+	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+		this.applicationEventPublisher = applicationEventPublisher;
+	}
+
+	@Override
+	public ParseResult beforeInvocation(ParseResult invocationContext) {
+		return invocationContext;
+	}
+
+	@Override
+	public void afterReturningInvocation(ParseResult invocationContext, Object result) {
+		String name = invocationContext.getMethod().getName();
+		if (name.startsWith("load") || name.startsWith("set")) {
+			publishChange();
+		}
+	}
+
+	@Override
+	public void afterThrowingInvocation(ParseResult invocationContext, Throwable thrown) {
+		// no-op
+	}
+
+	private void publishChange() {
+		applicationEventPublisher.publishEvent(new ConfigurationModifiedEvent(hadoopConfiguration));
 	}
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.data.hadoop.impala.hdfs.commands;
+package org.springframework.data.hadoop.impala.hdfs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,12 +23,14 @@ import java.util.logging.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FsShell;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.hadoop.impala.hdfs.HdfsConfiguration;
-import org.springframework.roo.shell.CliAvailabilityIndicator;
+import org.springframework.context.ApplicationListener;
+import org.springframework.data.hadoop.impala.common.ConfigurationModifiedEvent;
 import org.springframework.roo.shell.CliCommand;
 import org.springframework.roo.shell.CliOption;
 import org.springframework.roo.shell.CommandMarker;
+import org.springframework.roo.shell.ParseResult;
 import org.springframework.roo.support.logging.HandlerUtils;
+import org.springframework.shell.ExecutionProcessor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -38,42 +40,55 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class FsShellCommand implements CommandMarker {
+public class FsShellCommands implements CommandMarker, ApplicationListener<ConfigurationModifiedEvent>, ExecutionProcessor {
 
 	// Constants
-	private static Logger LOGGER = HandlerUtils.getLogger(FsShellCommand.class);
-
-	private FsShell shell;
-
-	private boolean initialized;
+	private static Logger LOGGER = HandlerUtils.getLogger(FsShellCommands.class);
+	private static final String PREFIX = "fs ";
 
 	@Autowired
-	private HdfsConfiguration hdfsConfiguration;
+	private Configuration hadoopConfiguration;
 
-	@CliAvailabilityIndicator({ "dfs" })
-	public boolean isCommandsAvailable() {
-		return isHDFSUrlSet();
+	private FsShell shell;
+	private boolean needToReinitialize = false;
+
+	@Override
+	public void onApplicationEvent(ConfigurationModifiedEvent event) {
+		needToReinitialize = true;
 	}
 
-	//TODO - add back in functionality to read a property file of a well known name to set the default value.
-	//       This can be handled using @Value in HdfsConfiguration
-
-	/**
-	 * judge whether HDFS URL is set 
-	 * 
-	 * @return true - if HDFS URL is set
-	 * 		   false - otherwise
-	 */
-	protected boolean isHDFSUrlSet() {
-		boolean result = true;
-		String dfsName = hdfsConfiguration.getDfsName();
-		if (dfsName == null || dfsName.length() == 0) {
-			result = false;
+	@Override
+	public ParseResult beforeInvocation(ParseResult invocationContext) {
+		// check whether the Hadoop configuration has changed
+		if (needToReinitialize || shell == null) {
+			// it did so refresh the shell before doing anything else 
+			init();
 		}
-		return result;
+
+		return invocationContext;
 	}
 
-	@CliCommand(value = "hdfs ls", help = "list files in HDFS")
+	private void init() {
+		if (shell != null) {
+			LOGGER.info("Hadoop configuration changed, re-initializing shell...");
+		}
+		needToReinitialize = false;
+		shell = new FsShell(hadoopConfiguration);
+	}
+
+	@Override
+	public void afterReturningInvocation(ParseResult invocationContext, Object result) {
+		// no-op
+	}
+
+
+	@Override
+	public void afterThrowingInvocation(ParseResult invocationContext, Throwable thrown) {
+		// no-op
+	}
+
+
+	@CliCommand(value = PREFIX + "ls", help = "list files in HDFS")
 	public void ls(
 			@CliOption(key = { "" }, mandatory = false, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "directory to be listed") final String path,
 			@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive) {
@@ -87,13 +102,13 @@ public class FsShellCommand implements CommandMarker {
 	}
 
 
-	@CliCommand(value = "hdfs cat", help = "show file content")
+	@CliCommand(value = PREFIX + "cat", help = "show file content")
 	public void cat(@CliOption(key = { "" }, mandatory = true, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "file name to be showed") final String path) {
 		setupShell();
 		runCommand("-cat", path);
 	}
 
-	@CliCommand(value = "hdfs chgrp", help = "change file group")
+	@CliCommand(value = PREFIX + "chgrp", help = "change file group")
 	public void chgrp(@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive,
 			@CliOption(key = { "group" }, mandatory = true, help = "group name") final String group,
 			@CliOption(key = { "" }, mandatory = true, help = "file name to be changed group") final String path) {
@@ -110,7 +125,7 @@ public class FsShellCommand implements CommandMarker {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = "hdfs chown", help = "change file ownership")
+	@CliCommand(value = PREFIX + "chown", help = "change file ownership")
 	public void chown(
 			@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive,
 			@CliOption(key = { "owner" }, mandatory = true, help = "owner name") final String owner,
@@ -128,7 +143,7 @@ public class FsShellCommand implements CommandMarker {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = "hdfs copyFromLocal", help = "copy local files to HDFS")
+	@CliCommand(value = PREFIX + "copyFromLocal", help = "copy local files to HDFS")
 	public void copyFromLocal(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
@@ -142,7 +157,7 @@ public class FsShellCommand implements CommandMarker {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = "hdfs put", help = "copy local files to HDFS")
+	@CliCommand(value = PREFIX + "put", help = "copy local files to HDFS")
 	public void put(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
@@ -156,7 +171,7 @@ public class FsShellCommand implements CommandMarker {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = "hdfs moveFromLocal", help = "move local files to HDFS")
+	@CliCommand(value = PREFIX + "moveFromLocal", help = "move local files to HDFS")
 	public void moveFromLocal(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
@@ -171,7 +186,7 @@ public class FsShellCommand implements CommandMarker {
 	}
 	
 	
-	@CliCommand(value = "hdfs copyToLocal", help = "copy HDFS files to local")
+	@CliCommand(value = PREFIX + "copyToLocal", help = "copy HDFS files to local")
 	public void copyToLocal(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest,
@@ -192,7 +207,7 @@ public class FsShellCommand implements CommandMarker {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = "hdfs get", help = "copy HDFS files to local")
+	@CliCommand(value = PREFIX + "get", help = "copy HDFS files to local")
 	public void get(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest,
@@ -213,7 +228,7 @@ public class FsShellCommand implements CommandMarker {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = "hdfs moveToLocal", help = "move HDFS files to local")
+	@CliCommand(value = PREFIX + "moveToLocal", help = "move HDFS files to local")
 	public void moveToLocal(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest,
@@ -231,7 +246,7 @@ public class FsShellCommand implements CommandMarker {
 	}
 	
 	
-	@CliCommand(value = "hdfs count", help = "Count the number of directories, files, bytes, quota, and remaining quota")
+	@CliCommand(value = PREFIX + "count", help = "Count the number of directories, files, bytes, quota, and remaining quota")
 	public void count(
 			@CliOption(key = { "quota" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean quota,
 			@CliOption(key = { "path" }, mandatory = true, help = " path name") final String path) {
@@ -247,7 +262,7 @@ public class FsShellCommand implements CommandMarker {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = "hdfs cp", help = "copy files in the HDFS")
+	@CliCommand(value = PREFIX + "cp", help = "copy files in the HDFS")
 	public void cp(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
@@ -261,7 +276,7 @@ public class FsShellCommand implements CommandMarker {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = "hdfs mv", help = "move files in the HDFS")
+	@CliCommand(value = PREFIX + "mv", help = "move files in the HDFS")
 	public void mv(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
@@ -275,7 +290,7 @@ public class FsShellCommand implements CommandMarker {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = "hdfs du", help = "display sizes of file")
+	@CliCommand(value = PREFIX + "du", help = "display sizes of file")
 	public void du(
 			@CliOption(key = { "" }, mandatory = false, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "directory to be listed") final String path,
 			@CliOption(key = { "summary" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with summary") final boolean summary) {
@@ -292,7 +307,7 @@ public class FsShellCommand implements CommandMarker {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = "hdfs expunge", help = "empty the trash")
+	@CliCommand(value = PREFIX + "expunge", help = "empty the trash")
 	public void expunge() {
 		setupShell();
 
@@ -302,7 +317,7 @@ public class FsShellCommand implements CommandMarker {
 	}
 	
 	
-	@CliCommand(value = "hdfs mkdir", help = "create new directory")
+	@CliCommand(value = PREFIX + "mkdir", help = "create new directory")
 	public void mkdir(
 			@CliOption(key = { "" }, mandatory = true, help = "directory name") final String dir) {
 		setupShell();
@@ -313,7 +328,7 @@ public class FsShellCommand implements CommandMarker {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = "hdfs rm", help = "remove files in HDFS")
+	@CliCommand(value = PREFIX + "rm", help = "remove files in HDFS")
 	public void rm(
 			@CliOption(key = { "" }, mandatory = false, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "directory to be listed") final String path,
 			@CliOption(key = { "skipTrash" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether skip trash") final boolean skipTrash,
@@ -334,7 +349,7 @@ public class FsShellCommand implements CommandMarker {
 	}
 	
 	
-	@CliCommand(value = "hdfs setrep", help = "set replication number")
+	@CliCommand(value = PREFIX + "setrep", help = "set replication number")
 	public void setrep(
 			@CliOption(key = { "replica" }, mandatory = true, help = "source file names") final int replica,
 			@CliOption(key = { "path" }, mandatory = true, help = " path name") final String path,
@@ -355,7 +370,7 @@ public class FsShellCommand implements CommandMarker {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = "hdfs tail", help = "tails file in HDFS")
+	@CliCommand(value = PREFIX + "tail", help = "tails file in HDFS")
 	public void tail(
 			@CliOption(key = { "" }, mandatory = true, help = "file to be tailed") final String path,
 			@CliOption(key = { "file" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether show content while file grow") final boolean file) {
@@ -369,7 +384,7 @@ public class FsShellCommand implements CommandMarker {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = "hdfs text", help = "show the text content")
+	@CliCommand(value = PREFIX + "text", help = "show the text content")
 	public void text(
 			@CliOption(key = { "" }, mandatory = true, help = "file to be showed") final String path) {
 		setupShell();
@@ -379,7 +394,7 @@ public class FsShellCommand implements CommandMarker {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = "hdfs touchz", help = "touch the file")
+	@CliCommand(value = PREFIX + "touchz", help = "touch the file")
 	public void touchz(
 			@CliOption(key = { "" }, mandatory = true, help = "file to be touched") final String path) {
 		setupShell();
@@ -409,12 +424,6 @@ public class FsShellCommand implements CommandMarker {
 	}
 
 	private void setupShell() {
-		if (!initialized) {
-			Configuration config = new Configuration();
-			config.setStrings("fs.default.name", hdfsConfiguration.getDfsName());
-			shell = new FsShell(config);
-			initialized = true;
-		}
+		// no need for this method
 	}
-
 }
