@@ -147,7 +147,7 @@ configure(rootProject) {
     }
 
 
-    task distZip(type: Zip, dependsOn: [docsZip]) {
+    task distroZip(type: Zip, dependsOn: [docsZip]) {
         group = 'Distribution'
         classifier = 'dist'
         description = "Builds -${classifier} archive, containing all jars and docs, " +
@@ -182,13 +182,13 @@ configure(rootProject) {
 
     // Create an distribution that contains all dependencies (required and optional).
     // Not published by default; only for use when building from source.
-    task depsZip(type: Zip, dependsOn: distZip) { zipTask ->
+    task depsZip(type: Zip, dependsOn: distroZip) { zipTask ->
         group = 'Distribution'
         classifier = 'dist-with-deps'
         description = "Builds -${classifier} archive, containing everything " +
-            "in the -${distZip.classifier} archive plus all runtime dependencies."
+            "in the -${distroZip.classifier} archive plus all runtime dependencies."
 
-        from zipTree(distZip.archivePath)
+        from zipTree(distroZip.archivePath)
 
         gradle.taskGraph.whenReady { taskGraph ->
             if (taskGraph.hasTask(":${zipTask.name}")) {
@@ -204,7 +204,7 @@ configure(rootProject) {
                 }
 
                 zipTask.from(artifacts) {
-                    into "${distZip.baseDir}/deps"
+                    into "${distroZip.baseDir}/deps"
                 }
             }
         }
@@ -212,13 +212,27 @@ configure(rootProject) {
 
     artifacts {
         archives docsZip
-        archives distZip
+        archives distroZip
     }
 
     task wrapper(type: Wrapper) {
         description = 'Generates gradlew[.bat] scripts'
         gradleVersion = '1.0'
     }
+}
+
+apply plugin: 'application'
+
+mainClassName = "org.springframework.shell.Bootstrap"
+startScripts.classpath += files(subprojects.collect { project ->
+   project.sourceSets.main.compileClasspath
+})
+applicationDistribution.with {
+    into("lib") {
+        from files(subprojects.collect { project ->
+            project.sourceSets.main.compileClasspath
+        })
+    } 
 }
 
 defaultTasks 'build'
