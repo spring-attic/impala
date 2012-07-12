@@ -44,7 +44,8 @@ import org.springframework.stereotype.Component;
 /**
  * Commands to submit and interact with MapReduce jobs
  * 
- *
+ * @author Jarred Li
+ * @author Author of <code>org.apache.hadoop.util.RunJar</code>
  */
 @Component
 public class MapReduceCommand implements CommandMarker {
@@ -185,7 +186,9 @@ public class MapReduceCommand implements CommandMarker {
 	}
 
 	@CliCommand(value = "mr jar", help = "run Map Reduce Job in the jar")
-	public void jar(@CliOption(key = { "jarfile" }, mandatory = true, help = "jar file name") final String jarFileName, @CliOption(key = "mainclass", mandatory = true, help = "main class name") final String mainClassName, @CliOption(key = "args", mandatory = false, help = "input path") final String args) {
+	public void jar(@CliOption(key = { "jarfile" }, mandatory = true, help = "jar file name") final String jarFileName, 
+			@CliOption(key = "mainclass", mandatory = true, help = "main class name") final String mainClassName,
+			@CliOption(key = "args", mandatory = false, help = "input path") final String args) {
 		File file = new File(jarFileName);
 		File tmpDir = new File(new Configuration().get("hadoop.tmp.dir"));
 		tmpDir.mkdirs();
@@ -214,7 +217,11 @@ public class MapReduceCommand implements CommandMarker {
 			unJar(file, workDir);
 
 			ArrayList<URL> classPath = new ArrayList<URL>();
+			
+			//This is to add hadoop configuration dir to classpath so that 
+			//Job Tracker's address can be found from mapred-site.xml
 			classPath.add(new File(System.getenv("HADOOP_CONF_DIR")).toURL());
+			
 			classPath.add(new File(workDir + "/").toURL());
 			classPath.add(file.toURL());
 			classPath.add(new File(workDir, "classes/").toURL());
@@ -224,11 +231,7 @@ public class MapReduceCommand implements CommandMarker {
 					classPath.add(libs[i].toURL());
 				}
 			}
-			classPath.add(new File("/home/hadoop/hadoop-1.0.0/hadoop-core-1.0.0.jar").toURL());
 			ClassLoader loader = new URLClassLoader(classPath.toArray(new URL[0]), this.getClass().getClassLoader());
-			//			System.out.println("before load class");
-			//			Class c = loader.loadClass("org.apache.hadoop.io.compress.SnappyCodec");
-			//			System.out.println("after load class");
 			Thread.currentThread().setContextClassLoader(loader);
 			Class<?> mainClass = Class.forName(mainClassName, true, loader);
 			Method main = mainClass.getMethod("main", new Class[] { Array.newInstance(String.class, 0).getClass() });
