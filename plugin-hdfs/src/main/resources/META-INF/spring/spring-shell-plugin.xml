@@ -5,8 +5,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
-	<context:component-scan base-package="org.springframework.data.hadoop.impala.hdfs.commands">
-	</context:component-scan>
+	<context:component-scan base-package="org.springframework.data.hadoop.impala.hdfs.commands"/>
 
 	<bean class="org.springframework.data.hadoop.impala.hdfs.HdfsConfiguration"/>
 </beans>

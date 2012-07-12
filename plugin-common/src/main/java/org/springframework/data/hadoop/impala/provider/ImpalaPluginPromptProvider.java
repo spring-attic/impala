@@ -17,29 +17,24 @@ package org.springframework.data.hadoop.impala.provider;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.shell.plugin.support.DefaultPromptProvider;
+import org.springframework.shell.plugin.PromptProvider;
 import org.springframework.stereotype.Component;
 
 /**
- * Propmpt provider to customize Spring Shell's prompt text
+ * Prompt provider.
  * 
  * @author Jarred Li
  *
  */
 @Component
 @Order(Ordered.LOWEST_PRECEDENCE)
-public class ImpalaPluginPromptProvider extends DefaultPromptProvider {
+public class ImpalaPluginPromptProvider implements PromptProvider {
 
-	/* (non-Javadoc)
-	 * @see org.springframework.shell.plugin.PromptProvider#getPromptText()
-	 */
-	public String getPromptText() {		
-		return "Impala-CLI>";
+	public String getPrompt() {
+		return "Impala>";
 	}
-	
-	@Override
+
 	public String name() {
-		return "impala cli prompt provider";
+		return "Impala Cli Prompt Provider";
 	}
-
 }

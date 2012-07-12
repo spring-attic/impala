@@ -50,7 +50,7 @@ public class SpringHadoopAdminPromptProviderTest {
 	 */
 	@Test
 	public void testGetPromptText() {
-		String prompt = provider.getPromptText();
+		String prompt = provider.getPrompt();
 		Assert.assertNotNull(prompt);
 	}
 

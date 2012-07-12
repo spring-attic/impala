@@ -20,7 +20,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.roo.shell.CliCommand;
 import org.springframework.roo.shell.CommandMarker;
 import org.springframework.roo.support.util.StringUtils;
-import org.springframework.shell.plugin.support.DefaultBannerProvider;
+import org.springframework.shell.plugin.BannerProvider;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,23 +31,11 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Order(Ordered.LOWEST_PRECEDENCE)
-public class ImpalaluginBannerProvider extends DefaultBannerProvider 
-				implements CommandMarker {
+public class ImpalaPluginBannerProvider implements BannerProvider, CommandMarker {
 
-	/* (non-Javadoc)
-	 * @see org.springframework.shell.plugin.BannerProvider#getBanner()
-	 */
 	@CliCommand(value = { "version" }, help = "Displays current CLI version")
 	public String getBanner() {
 		StringBuffer buf = new StringBuffer();
-//		buf.append("=======================================buf.append("
-//		buf.append("*                                      *"+ StringUtils.LINE_SEPARATOR);
-//		buf.append("*                                      *"+ StringUtils.LINE_SEPARATOR);
-//		buf.append("*      CLI Plugin from Impala          *" +StringUtils.LINE_SEPARATOR);
-//		buf.append("*                                      *"+ StringUtils.LINE_SEPARATOR);
-//		buf.append("*                                      *"+ StringUtils.LINE_SEPARATOR);
-//		buf.append("=======================================" + StringUtils.LINE_SEPARATOR);
-		
 		buf.append("_________ _______  _______  _______  _        _______ " + StringUtils.LINE_SEPARATOR);
 		buf.append("\\__   __/(       )(  ____ )(  ___  )( \\      (  ___  )" + StringUtils.LINE_SEPARATOR);
 		buf.append("   ) (   | () () || (    )|| (   ) || (      | (   ) |" + StringUtils.LINE_SEPARATOR);
@@ -56,29 +44,22 @@ public class ImpalaluginBannerProvider extends DefaultBannerProvider
 		buf.append("   | |   | |   | || (      | (   ) || |      | (   ) |" + StringUtils.LINE_SEPARATOR);
 		buf.append("___) (___| )   ( || )      | )   ( || (____/\\| )   ( |" + StringUtils.LINE_SEPARATOR);
 		buf.append("\\_______/|/     \\||/       |/     \\|(_______/|/     \\|" + StringUtils.LINE_SEPARATOR);
-		
+
 		buf.append("Verson:" + this.getVersion());
 		return buf.toString();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.shell.plugin.BannerProvider#getVersion()
-	 */
 	public String getVersion() {
-		return "1.0.0";
+		Package pkg = ImpalaPluginBannerProvider.class.getPackage();
+		String version = (pkg != null ? pkg.getImplementationVersion() : "");
+		return (StringUtils.hasText(version) ? version : "Unknown Version");
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.shell.plugin.BannerProvider#getWelcomeMessage()
-	 */
 	public String getWelcomeMessage() {
-		return "Welcome to Imapala Hadoop CLI";
+		return "Welcome to Impala CLI";
 	}
-	
-	@Override
-	public String name() {
-		return "impala cli banner provider";
-	}
-	
 
+	public String name() {
+		return "Impala CLI Banner Provider";
+	}
 }
