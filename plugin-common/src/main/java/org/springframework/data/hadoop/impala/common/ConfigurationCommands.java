@@ -81,7 +81,7 @@ public class ConfigurationCommands implements ApplicationEventPublisherAware, Co
 	}
 
 	@CliCommand(value = { PREFIX + "jt" }, help = "Sets the Hadoop job tracker - can be 'local' or <jobtracker:port>")
-	public void setJt(@CliOption(key = { "", "namenode" }, mandatory = true, help = "Job tracker address - local|<jobtracker:port>") String jobtracker) {
+	public void setJt(@CliOption(key = { "", "jobtracker" }, mandatory = true, help = "Job tracker address - local|<jobtracker:port>") String jobtracker) {
 		hadoopConfiguration.set("mapred.job.tracker", jobtracker);
 	}
 

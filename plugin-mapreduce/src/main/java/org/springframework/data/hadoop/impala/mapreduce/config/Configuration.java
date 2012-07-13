@@ -15,7 +15,13 @@
  */
 package org.springframework.data.hadoop.impala.mapreduce.config;
 
+import java.io.FileOutputStream;
 import java.util.List;
+
+import javax.xml.transform.stream.StreamResult;
+
+import org.springframework.oxm.Marshaller;
+import org.springframework.oxm.castor.CastorMarshaller;
 
 /**
  * @author Jarred Li
@@ -23,8 +29,14 @@ import java.util.List;
  */
 public class Configuration {
 
-	List<Property> properties;
+	private Marshaller marshaller;
+	
+	private List<Property> properties;
 
+	public Configuration(org.apache.hadoop.conf.Configuration config){
+		marshaller = new CastorMarshaller();
+	}
+	
 	/**
 	 * @return the properties
 	 */
@@ -39,5 +51,16 @@ public class Configuration {
 		this.properties = properties;
 	}
 	
+	public void save(String fileName){
+		FileOutputStream fos = null;
+		try{
+			fos = new FileOutputStream(fileName);
+			StreamResult xmlResult = new StreamResult(fos);
+			marshaller.marshal(this, xmlResult);
+		}
+		catch(Exception e){
+			System.err.println("Save Hadoop configuration failed. Message:" + e.getMessage());
+		}
+	}
 	
 }

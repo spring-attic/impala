@@ -79,6 +79,7 @@ project('plugin-mapreduce') {
     description = 'Impala MapReduce plugin'
     dependencies {
        	compile project(':plugin-common')
+       	compile "org.springframework:spring-oxm:$springVersion"
     }
 }
 

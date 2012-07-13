@@ -15,33 +15,42 @@
  */
 package org.springframework.data.hadoop.impala.mapreduce;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import static org.junit.Assert.*;
+
+import java.io.File;
 
 import org.apache.hadoop.conf.Configuration;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Jarred Li
  *
  */
-public class Test {
+public class MapReduceCommandsTest {
 
 	/**
-	 * @param args
+	 * @throws java.lang.Exception
 	 */
-	public static void main(String[] args) {
-		Configuration config = new Configuration();
-		config.setStrings("mapred.job.tracker", "localhost:9001");
-		System.out.println("configuration:" + config.toString());
-		System.out.println("hdfs:" + config.get("fs.default.name"));
-		PrintWriter pw = new PrintWriter(System.out);
-		try {
-			Configuration.dumpConfiguration(config, pw);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	@Before
+	public void setUp() throws Exception {
+	}
 
+	/**
+	 * @throws java.lang.Exception
+	 */
+	@After
+	public void tearDown() throws Exception {
+	}
+
+	/**
+	 * Test method for {@link org.springframework.data.hadoop.impala.mapreduce.MapReduceCommands#writeHadoopConfiguration(java.io.File, org.apache.hadoop.conf.Configuration)}.
+	 */
+	@Test
+	public void testWriteHadoopConfiguration() {
+		MapReduceCommands cmd = new MapReduceCommands();
+		cmd.writeHadoopConfiguration(new File("/tmp/impala"), new Configuration());
 	}
 
 }

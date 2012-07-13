@@ -32,6 +32,7 @@ import java.util.jar.JarFile;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileUtil;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.springframework.data.hadoop.impala.common.ConfigurationHolder;
@@ -213,12 +214,15 @@ public class MapReduceCommands extends ConfigurationHolder implements CommandMar
 			ArrayList<URL> classPath = new ArrayList<URL>();
 			
 			//This is to add hadoop configuration dir to classpath so that 
-			//Job Tracker's address can be found from mapred-site.xml
-			classPath.add(new File(System.getenv("HADOOP_CONF_DIR")).toURL());
-			
-			classPath.add(new File(workDir + "/").toURL());
+			//user's configuration can be accessed when running the jar
+			File hadoopConfigurationDir = new File(workDir + Path.SEPARATOR +"impala-hadoop-configuration");
+			writeHadoopConfiguration(hadoopConfigurationDir,this.getHadoopConfiguration());
+			classPath.add(hadoopConfigurationDir.toURL());
+			//classPath.add(new File(System.getenv("HADOOP_CONF_DIR")).toURL());
+
+			classPath.add(new File(workDir + Path.SEPARATOR).toURL());
 			classPath.add(file.toURL());
-			classPath.add(new File(workDir, "classes/").toURL());
+			classPath.add(new File(workDir, "classes" + Path.SEPARATOR).toURL());
 			File[] libs = new File(workDir, "lib").listFiles();
 			if (libs != null) {
 				for (int i = 0; i < libs.length; i++) {
@@ -233,8 +237,31 @@ public class MapReduceCommands extends ConfigurationHolder implements CommandMar
 			main.invoke(null, new Object[] { newArgs });
 		} catch (Exception e) {
 			System.err.println("failed to run MR job. Failed Message:" + e.getMessage());
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
+	}
+
+	/**
+	 * wirte the Hadoop configuration to one directory, 
+	 * file name is "core-site.xml", "hdfs-site.xml" and "mapred-site.xml".
+	 * 
+	 * @param configDir the directory that the file be written
+	 * @param config Hadoop configuration
+	 * 
+	 */
+	public void writeHadoopConfiguration(File configDir,Configuration config) {
+		configDir.mkdirs();
+		try {
+			FileOutputStream fos = new FileOutputStream(new File(configDir + Path.SEPARATOR + "core-site.xml"));
+			config.writeXml(fos);
+			fos = new FileOutputStream(new File(configDir + Path.SEPARATOR + "hdfs-site.xml"));
+			config.writeXml(fos);
+			fos = new FileOutputStream(new File(configDir + Path.SEPARATOR + "mapred-site.xml"));
+			config.writeXml(fos);
+		} catch (Exception e) {
+			System.err.println("Save user's configuration failed. Message:" + e.getMessage());
+		}
+		
 	}
 
 	private void unJar(File jarFile, File toDir) throws IOException {
