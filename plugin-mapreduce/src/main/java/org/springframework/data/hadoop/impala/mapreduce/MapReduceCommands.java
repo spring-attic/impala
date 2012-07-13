@@ -29,6 +29,9 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.Logger;
+
+import javax.annotation.PostConstruct;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileUtil;
@@ -38,6 +41,7 @@ import org.apache.hadoop.mapred.JobConf;
 import org.springframework.data.hadoop.impala.common.ConfigurationAware;
 import org.springframework.roo.shell.CliCommand;
 import org.springframework.roo.shell.CliOption;
+import org.springframework.roo.support.logging.HandlerUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -48,24 +52,30 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class MapReduceCommands extends ConfigurationAware {
-	
+
+	private static Logger LOGGER = HandlerUtils.getLogger(MapReduceCommands.class);
+
 	private JobClient jobClient;
+
+	@PostConstruct
+	public boolean init() {
+		try {
+			jobClient = new JobClient(new JobConf(getHadoopConfiguration()));
+			return true;
+		} catch (IOException e) {
+			LOGGER.warning("JobClient initilization failed; " + e);
+			return false;
+		}
+	}
 
 	@Override
 	public boolean configurationChanged() {
-		boolean result = true;
-		if(jobClient != null){
-			
+		if (jobClient != null) {
+			LOGGER.info("Hadoop configuration changed, re-initializing shell...");
 		}
-		try {
-			jobClient = new JobClient(new JobConf(getHadoopConfiguration()));
-		} catch (IOException e) {
-			System.err.println("init job client failed. Message:" + e.getMessage());
-			result = false;
-		}
-		return result;
+		return init();
 	}
-	
+
 	@CliCommand(value = "mr job submit", help = "submit Map Reduce Jobs.")
 	public void submit(@CliOption(key = { "jobfile" }, mandatory = true, help = "the configuration file for MR job") final String jobFile) {
 		List<String> argv = new ArrayList<String>();
@@ -130,8 +140,8 @@ public class MapReduceCommands extends ConfigurationAware {
 		}
 		run(argv.toArray(new String[0]));
 	}
-	
-	
+
+
 	@CliCommand(value = "mr task kill", help = "kill Map Reduce task.")
 	public void killTask(@CliOption(key = { "taskid" }, mandatory = true, help = "the task Id") final String taskid) {
 		List<String> argv = new ArrayList<String>();
@@ -139,7 +149,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		argv.add(taskid);
 		run(argv.toArray(new String[0]));
 	}
-	
+
 	@CliCommand(value = "mr task fail", help = "fail Map Reduce task.")
 	public void failTask(@CliOption(key = { "taskid" }, mandatory = true, help = "the task Id") final String taskid) {
 		List<String> argv = new ArrayList<String>();
@@ -147,39 +157,32 @@ public class MapReduceCommands extends ConfigurationAware {
 		argv.add(taskid);
 		run(argv.toArray(new String[0]));
 	}
-	
+
 	@CliCommand(value = "mr job set priority", help = "Changes the priority of the job.")
-	public void setPriority(@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid,
-			@CliOption(key = { "priority" }, mandatory = true, help = "the job priority") final JobPriority priority) {
+	public void setPriority(@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid, @CliOption(key = { "priority" }, mandatory = true, help = "the job priority") final JobPriority priority) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-set-priority");
 		argv.add(jobid);
 		argv.add(priority.getValue());
 		run(argv.toArray(new String[0]));
 	}
-	
-	public enum JobPriority{
-		VERY_HIGH("VERY_HIGH"),
-		HIGH("HIGH"),
-		NORML("NORMAL"),
-		LOW("LOW"),
-		VERY_LOW("VERY_LOW");
-		
+
+	public enum JobPriority {
+		VERY_HIGH("VERY_HIGH"), HIGH("HIGH"), NORML("NORMAL"), LOW("LOW"), VERY_LOW("VERY_LOW");
+
 		private String val;
-		
-		JobPriority(String v){
+
+		JobPriority(String v) {
 			this.val = v;
 		}
-		
-		public String getValue(){
+
+		public String getValue() {
 			return val;
 		}
 	}
 
 	@CliCommand(value = "mr jar", help = "run Map Reduce Job in the jar")
-	public void jar(@CliOption(key = { "jarfile" }, mandatory = true, help = "jar file name") final String jarFileName, 
-			@CliOption(key = "mainclass", mandatory = true, help = "main class name") final String mainClassName,
-			@CliOption(key = "args", mandatory = false, help = "input path") final String args) {
+	public void jar(@CliOption(key = { "jarfile" }, mandatory = true, help = "jar file name") final String jarFileName, @CliOption(key = "mainclass", mandatory = true, help = "main class name") final String mainClassName, @CliOption(key = "args", mandatory = false, help = "input path") final String args) {
 		File file = new File(jarFileName);
 		File tmpDir = new File(new Configuration().get("hadoop.tmp.dir"));
 		tmpDir.mkdirs();
@@ -208,11 +211,11 @@ public class MapReduceCommands extends ConfigurationAware {
 			unJar(file, workDir);
 
 			ArrayList<URL> classPath = new ArrayList<URL>();
-			
+
 			//This is to add hadoop configuration dir to classpath so that 
 			//user's configuration can be accessed when running the jar
-			File hadoopConfigurationDir = new File(workDir + Path.SEPARATOR +"impala-hadoop-configuration");
-			writeHadoopConfiguration(hadoopConfigurationDir,this.getHadoopConfiguration());
+			File hadoopConfigurationDir = new File(workDir + Path.SEPARATOR + "impala-hadoop-configuration");
+			writeHadoopConfiguration(hadoopConfigurationDir, this.getHadoopConfiguration());
 			classPath.add(hadoopConfigurationDir.toURL());
 			//classPath.add(new File(System.getenv("HADOOP_CONF_DIR")).toURL());
 
@@ -245,7 +248,7 @@ public class MapReduceCommands extends ConfigurationAware {
 	 * @param config Hadoop configuration
 	 * 
 	 */
-	public void writeHadoopConfiguration(File configDir,Configuration config) {
+	public void writeHadoopConfiguration(File configDir, Configuration config) {
 		configDir.mkdirs();
 		try {
 			FileOutputStream fos = new FileOutputStream(new File(configDir + Path.SEPARATOR + "core-site.xml"));
@@ -257,7 +260,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		} catch (Exception e) {
 			System.err.println("Save user's configuration failed. Message:" + e.getMessage());
 		}
-		
+
 	}
 
 	private void unJar(File jarFile, File toDir) throws IOException {
