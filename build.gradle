@@ -7,6 +7,7 @@ allprojects {
 	apply plugin: 'base'
 	apply plugin: 'java'
 	apply plugin: 'eclipse'
+    apply from: "${rootProject.projectDir}/maven.gradle"
 
 	repositories {
 		maven { url "http://repo.springsource.org/libs-snapshot" }
@@ -14,7 +15,7 @@ allprojects {
 	}
 
 	dependencies {
-        compile "org.apache.hadoop:hadoop-core:$hadoopVersion"
+        compile ("org.apache.hadoop:hadoop-core:$hadoopVersion", optional)
        	compile "org.springframework.data:spring-data-hadoop:$shdpVersion"
        	compile "org.springframework.shell:spring-shell:$springShellVersion"
 
@@ -26,8 +27,6 @@ allprojects {
 }
 
 configure(subprojects) { subproject ->
-    apply from: "${rootProject.projectDir}/maven.gradle"
-
     jar {
         manifest.attributes['Implementation-Title'] = subproject.name
         manifest.attributes['Implementation-Version'] = subproject.version
@@ -89,12 +88,13 @@ project('plugin-hive') {
 	}
 }
 
-//project('plugin-pig') {
-//	description = 'Impala Hive plugin'
-//	dependencies {
-//		compile project(':plugin-common')
-//	}
-//}
+project('plugin-pig') {
+	description = 'Impala Pig plugin'
+	dependencies {
+		compile project(':plugin-common')
+		compile("org.apache.pig:pig:$pigVersion", optional)
+	}
+}
 
 configure(rootProject) {
     description = 'Impala'

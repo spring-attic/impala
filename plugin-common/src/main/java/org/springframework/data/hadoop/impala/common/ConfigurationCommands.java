@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.mapreduce.JobSubmissionFiles;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -40,6 +41,18 @@ import org.springframework.util.Assert;
  */
 @Component
 public class ConfigurationCommands implements ApplicationEventPublisherAware, CommandMarker, ExecutionProcessor {
+
+	// Ugly hack to make Hadoop work on Windows
+	// placed here since these commands will be always enabled
+	// the static block is used to execute this only once - probably in time it'll be more configurable
+	static {
+		// do the assignment only on Windows systems
+		if (System.getProperty("os.name").startsWith("Windows")) {
+			// 0655 = -rwxr-xr-x
+			JobSubmissionFiles.JOB_DIR_PERMISSION.fromShort((short) 0655);
+			JobSubmissionFiles.JOB_FILE_PERMISSION.fromShort((short) 0655);
+		}
+	}
 
 	private static Logger log = Logger.getLogger(ConfigurationCommands.class.getName());
 	private static final String PREFIX = "cfg ";

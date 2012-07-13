@@ -29,7 +29,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 
@@ -41,7 +40,6 @@ import org.apache.hadoop.mapred.JobConf;
 import org.springframework.data.hadoop.impala.common.ConfigurationAware;
 import org.springframework.roo.shell.CliCommand;
 import org.springframework.roo.shell.CliOption;
-import org.springframework.roo.support.logging.HandlerUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -53,27 +51,25 @@ import org.springframework.stereotype.Component;
 @Component
 public class MapReduceCommands extends ConfigurationAware {
 
-	private static Logger LOGGER = HandlerUtils.getLogger(MapReduceCommands.class);
-
 	private JobClient jobClient;
 
 	@PostConstruct
-	public boolean init() {
-		try {
+	public void init() throws IOException {
 			jobClient = new JobClient(new JobConf(getHadoopConfiguration()));
-			return true;
-		} catch (IOException e) {
-			LOGGER.warning("JobClient initilization failed; " + e);
-			return false;
-		}
 	}
 
 	@Override
-	public boolean configurationChanged() {
+	protected String failedComponentName() {
+		return "Map/Reduce";
+	}
+
+	@Override
+	protected boolean configurationChanged() throws Exception {
 		if (jobClient != null) {
-			LOGGER.info("Hadoop configuration changed, re-initializing shell...");
+			LOG.info("Hadoop configuration changed, re-initializing MR...");
 		}
-		return init();
+		init();
+		return true;
 	}
 
 	@CliCommand(value = "mr job submit", help = "submit Map Reduce Jobs.")

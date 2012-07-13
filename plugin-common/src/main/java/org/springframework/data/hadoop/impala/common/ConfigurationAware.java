@@ -15,6 +15,8 @@
  */
 package org.springframework.data.hadoop.impala.common;
 
+import java.util.logging.Logger;
+
 import org.apache.hadoop.conf.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -28,6 +30,8 @@ import org.springframework.shell.ExecutionProcessor;
  * @author Jarred Li
  */
 public abstract class ConfigurationAware implements ApplicationListener<ConfigurationModifiedEvent>, ExecutionProcessor {
+
+	protected final Logger LOG = Logger.getLogger(getClass().getName());
 
 	@Autowired
 	private Configuration hadoopConfiguration;
@@ -43,18 +47,36 @@ public abstract class ConfigurationAware implements ApplicationListener<Configur
 	public ParseResult beforeInvocation(ParseResult invocationContext) {
 		// check whether the Hadoop configuration has changed
 		if (needToReinitialize) {
-			this.needToReinitialize = !configurationChanged();
+			try {
+				this.needToReinitialize = !configurationChanged();
+			} catch (Exception ex) {
+				logUpdateError(ex);
+			}
 		}
 		return invocationContext;
 	}
 
 	/**
 	 * Called before invoking a command in case the configuration changed.
-	 * Should return true if the change has been acknowledged, false otherwise 
+	 * Should return true if the change has been acknowledged, false otherwise.
+	 * 
+	 * Implementation are encouraged to update their name accordingly through {@link #failedComponentName()}
+	 * to provide proper error messages.
 	 * 
 	 * @return true if the change has been acknowledged, false otherwise.
+	 * @throws Exception ignored and causing the re-initialization to occur on the next call
+	 * 
+	 * @see #failedComponentName()
+	 * @see #logUpdateError(Exception)
 	 */
-	public abstract boolean configurationChanged();
+	protected abstract boolean configurationChanged() throws Exception;
+
+	protected void logUpdateError(Exception ex) {
+		LOG.severe("Hadoop configuration changed but updating [" + failedComponentName() + "] failed; cause=" + ex);
+	}
+	protected String failedComponentName() {
+		return getClass().getName();
+	}
 
 	@Override
 	public void afterReturningInvocation(ParseResult invocationContext, Object result) {
