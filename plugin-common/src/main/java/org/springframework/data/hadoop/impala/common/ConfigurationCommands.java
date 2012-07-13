@@ -85,6 +85,20 @@ public class ConfigurationCommands implements ApplicationEventPublisherAware, Co
 		hadoopConfiguration.set("mapred.job.tracker", jobtracker);
 	}
 
+	@CliCommand(value = { PREFIX + "info" }, help = "Returns basic info about the Hadoop configuration")
+	public String info() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("HadoopConfig [fs=");
+		sb.append(FileSystem.getDefaultUri(hadoopConfiguration));
+		sb.append("] [jt=");
+		sb.append(hadoopConfiguration.get("mapred.job.tracker"));
+		sb.append("]");
+
+		// TODO: potentially add a check to see whether HDFS is running
+
+		return sb.toString();
+	}
+
 	@Override
 	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
 		this.applicationEventPublisher = applicationEventPublisher;
