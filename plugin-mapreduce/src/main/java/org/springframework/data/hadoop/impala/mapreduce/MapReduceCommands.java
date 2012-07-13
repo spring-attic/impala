@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.data.hadoop.impala.mapreduce.commands;
+package org.springframework.data.hadoop.impala.mapreduce;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -34,8 +34,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.hadoop.impala.mapreduce.JobConfiguration;
+import org.springframework.data.hadoop.impala.common.ConfigurationHolder;
 import org.springframework.roo.shell.CliCommand;
 import org.springframework.roo.shell.CliOption;
 import org.springframework.roo.shell.CommandMarker;
@@ -48,19 +47,30 @@ import org.springframework.stereotype.Component;
  * @author Author of <code>org.apache.hadoop.util.RunJar</code>
  */
 @Component
-public class MapReduceCommand implements CommandMarker {
-
-	private boolean initialized;
-
-	@Autowired
-	private JobConfiguration jobConfiguration;
-
+public class MapReduceCommands extends ConfigurationHolder implements CommandMarker {
+	
 	private JobClient jobClient;
 
+	/* (non-Javadoc)
+	 * @see org.springframework.data.hadoop.impala.common.ConfigurationHolder#init()
+	 */
+	@Override
+	public boolean init() {
+		boolean result = true;
+		if(jobClient != null){
+			
+		}
+		try {
+			jobClient = new JobClient(new JobConf(getHadoopConfiguration()));
+		} catch (IOException e) {
+			System.err.println("init job client failed. Message:" + e.getMessage());
+			result = false;
+		}
+		return result;
+	}
+	
 	@CliCommand(value = "mr job submit", help = "submit Map Reduce Jobs.")
 	public void submit(@CliOption(key = { "jobfile" }, mandatory = true, help = "the configuration file for MR job") final String jobFile) {
-		setupJobClient();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-submit");
 		argv.add(jobFile);
@@ -69,8 +79,6 @@ public class MapReduceCommand implements CommandMarker {
 
 	@CliCommand(value = "mr job status", help = "query Map Reduce status.")
 	public void status(@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid) {
-		setupJobClient();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-status");
 		argv.add(jobid);
@@ -79,8 +87,6 @@ public class MapReduceCommand implements CommandMarker {
 
 	@CliCommand(value = "mr job counter", help = "query job counter.")
 	public void counter(@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid, @CliOption(key = { "groupname" }, mandatory = true, help = "the job Id") final String groupName, @CliOption(key = { "countername" }, mandatory = true, help = "the job Id") final String counterName) {
-		setupJobClient();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-counter");
 		argv.add(jobid);
@@ -91,8 +97,6 @@ public class MapReduceCommand implements CommandMarker {
 
 	@CliCommand(value = "mr job kill", help = "kill Map Reduce job.")
 	public void kill(@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid) {
-		setupJobClient();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-kill");
 		argv.add(jobid);
@@ -101,8 +105,6 @@ public class MapReduceCommand implements CommandMarker {
 
 	@CliCommand(value = "mr job events", help = "query Map Reduce events.")
 	public void events(@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid, @CliOption(key = { "from" }, mandatory = true, help = "from event number") final String from, @CliOption(key = { "number" }, mandatory = true, help = "total number of events") final String number) {
-		setupJobClient();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-events");
 		argv.add(jobid);
@@ -113,7 +115,6 @@ public class MapReduceCommand implements CommandMarker {
 
 	@CliCommand(value = "mr job history", help = "list MapReduce Job history.")
 	public void history(@CliOption(key = { "all" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "list all jobs") final boolean all, @CliOption(key = { "" }, mandatory = true, help = "output directory") final String outputDir) {
-		setupJobClient();
 		List<String> argv = new ArrayList<String>();
 		argv.add("-history");
 		if (all) {
@@ -125,7 +126,6 @@ public class MapReduceCommand implements CommandMarker {
 
 	@CliCommand(value = "mr job list", help = "list MapReduce Jobs.")
 	public void list(@CliOption(key = { "all" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "list all jobs") final boolean all) {
-		setupJobClient();
 		List<String> argv = new ArrayList<String>();
 		argv.add("-list");
 		if (all) {
@@ -137,8 +137,6 @@ public class MapReduceCommand implements CommandMarker {
 	
 	@CliCommand(value = "mr task kill", help = "kill Map Reduce task.")
 	public void killTask(@CliOption(key = { "taskid" }, mandatory = true, help = "the task Id") final String taskid) {
-		setupJobClient();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-kill-task");
 		argv.add(taskid);
@@ -147,8 +145,6 @@ public class MapReduceCommand implements CommandMarker {
 	
 	@CliCommand(value = "mr task fail", help = "fail Map Reduce task.")
 	public void failTask(@CliOption(key = { "taskid" }, mandatory = true, help = "the task Id") final String taskid) {
-		setupJobClient();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-fail-task");
 		argv.add(taskid);
@@ -158,8 +154,6 @@ public class MapReduceCommand implements CommandMarker {
 	@CliCommand(value = "mr job set priority", help = "Changes the priority of the job.")
 	public void setPriority(@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid,
 			@CliOption(key = { "priority" }, mandatory = true, help = "the job priority") final JobPriority priority) {
-		setupJobClient();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-set-priority");
 		argv.add(jobid);
@@ -278,19 +272,6 @@ public class MapReduceCommand implements CommandMarker {
 		}
 	}
 
-	private void setupJobClient() {
-		if (!initialized) {
-			Configuration config = new Configuration();
-			config.setStrings("mapred.job.tracker", jobConfiguration.getJobTracker());
-			try {
-				jobClient = new JobClient(new JobConf(config));
-			} catch (IOException e) {
-				System.err.println("Init job client failed.Failed Message:" + e.getMessage());
-			}
-			initialized = true;
-		}
-	}
-
 	private void run(String[] argv) {
 		try {
 			jobClient.run(argv);
@@ -298,5 +279,6 @@ public class MapReduceCommand implements CommandMarker {
 			System.err.println("run MR job failed. Failed Message:" + e.getMessage());
 		}
 	}
+
 
 }

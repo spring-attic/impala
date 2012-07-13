@@ -20,17 +20,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FsShell;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationListener;
-import org.springframework.data.hadoop.impala.common.ConfigurationModifiedEvent;
+import org.springframework.data.hadoop.impala.common.ConfigurationHolder;
 import org.springframework.roo.shell.CliCommand;
 import org.springframework.roo.shell.CliOption;
 import org.springframework.roo.shell.CommandMarker;
-import org.springframework.roo.shell.ParseResult;
 import org.springframework.roo.support.logging.HandlerUtils;
-import org.springframework.shell.ExecutionProcessor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -40,59 +35,27 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class FsShellCommands implements CommandMarker, ApplicationListener<ConfigurationModifiedEvent>, ExecutionProcessor {
+public class FsShellCommands extends ConfigurationHolder implements CommandMarker{
 
 	// Constants
 	private static Logger LOGGER = HandlerUtils.getLogger(FsShellCommands.class);
 	private static final String PREFIX = "fs ";
 
-	@Autowired
-	private Configuration hadoopConfiguration;
-
 	private FsShell shell;
-	private boolean needToReinitialize = false;
 
 	@Override
-	public void onApplicationEvent(ConfigurationModifiedEvent event) {
-		needToReinitialize = true;
-	}
-
-	@Override
-	public ParseResult beforeInvocation(ParseResult invocationContext) {
-		// check whether the Hadoop configuration has changed
-		if (needToReinitialize || shell == null) {
-			// it did so refresh the shell before doing anything else 
-			init();
-		}
-
-		return invocationContext;
-	}
-
-	private void init() {
+	public boolean init() {
 		if (shell != null) {
 			LOGGER.info("Hadoop configuration changed, re-initializing shell...");
 		}
-		needToReinitialize = false;
-		shell = new FsShell(hadoopConfiguration);
+		shell = new FsShell(getHadoopConfiguration());
+		return true;
 	}
-
-	@Override
-	public void afterReturningInvocation(ParseResult invocationContext, Object result) {
-		// no-op
-	}
-
-
-	@Override
-	public void afterThrowingInvocation(ParseResult invocationContext, Throwable thrown) {
-		// no-op
-	}
-
 
 	@CliCommand(value = PREFIX + "ls", help = "list files in HDFS")
 	public void ls(
 			@CliOption(key = { "" }, mandatory = false, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "directory to be listed") final String path,
 			@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive) {
-		setupShell();
 		if (recursive) {
 			runCommand("-lsr", path);
 		}
@@ -104,7 +67,6 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 
 	@CliCommand(value = PREFIX + "cat", help = "show file content")
 	public void cat(@CliOption(key = { "" }, mandatory = true, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "file name to be showed") final String path) {
-		setupShell();
 		runCommand("-cat", path);
 	}
 
@@ -112,8 +74,6 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 	public void chgrp(@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive,
 			@CliOption(key = { "group" }, mandatory = true, help = "group name") final String group,
 			@CliOption(key = { "" }, mandatory = true, help = "file name to be changed group") final String path) {
-		setupShell();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-chgrp");
 		if (recursive) {
@@ -130,8 +90,6 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 			@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive,
 			@CliOption(key = { "owner" }, mandatory = true, help = "owner name") final String owner,
 			@CliOption(key = { "" }, mandatory = true, help = "file name to be changed group") final String path) {
-		setupShell();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-chown");
 		if (recursive) {
@@ -147,8 +105,6 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 	public void copyFromLocal(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
-		setupShell();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-copyFromLocal");
 		String[] fileNames = source.split(" ");
@@ -161,8 +117,6 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 	public void put(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
-		setupShell();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-put");
 		String[] fileNames = source.split(" ");
@@ -175,8 +129,6 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 	public void moveFromLocal(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
-		setupShell();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-moveFromLocal");
 		String[] fileNames = source.split(" ");
@@ -192,8 +144,6 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest,
 			@CliOption(key = { "ignoreCrc" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether ignore CRC") final boolean ignoreCrc,
 			@CliOption(key = { "crc" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether copy CRC") final boolean crc) {
-		setupShell();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-copyToLocal");
 		if(ignoreCrc){
@@ -213,8 +163,6 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest,
 			@CliOption(key = { "ignoreCrc" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether ignore CRC") final boolean ignoreCrc,
 			@CliOption(key = { "crc" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether copy CRC") final boolean crc) {
-		setupShell();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-get");
 		if(ignoreCrc){
@@ -233,8 +181,6 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest,
 			@CliOption(key = { "crc" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether copy CRC") final boolean crc) {
-		setupShell();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-moveToLocal");
 		if(crc){
@@ -250,8 +196,6 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 	public void count(
 			@CliOption(key = { "quota" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean quota,
 			@CliOption(key = { "path" }, mandatory = true, help = " path name") final String path) {
-		setupShell();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-count");
 		if(quota){
@@ -266,8 +210,6 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 	public void cp(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
-		setupShell();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-cp");
 		String[] fileNames = source.split(" ");
@@ -280,8 +222,6 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 	public void mv(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
-		setupShell();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-mv");
 		String[] fileNames = source.split(" ");
@@ -294,8 +234,6 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 	public void du(
 			@CliOption(key = { "" }, mandatory = false, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "directory to be listed") final String path,
 			@CliOption(key = { "summary" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with summary") final boolean summary) {
-		setupShell();
-
 		List<String> argv = new ArrayList<String>();
 		if(summary){
 			argv.add("-dus");
@@ -309,8 +247,6 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 	
 	@CliCommand(value = PREFIX + "expunge", help = "empty the trash")
 	public void expunge() {
-		setupShell();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-expunge");
 		run(argv.toArray(new String[0]));
@@ -320,8 +256,6 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 	@CliCommand(value = PREFIX + "mkdir", help = "create new directory")
 	public void mkdir(
 			@CliOption(key = { "" }, mandatory = true, help = "directory name") final String dir) {
-		setupShell();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-mkdir");
 		argv.add(dir);
@@ -333,7 +267,6 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 			@CliOption(key = { "" }, mandatory = false, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "directory to be listed") final String path,
 			@CliOption(key = { "skipTrash" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether skip trash") final boolean skipTrash,
 			@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive) {
-		setupShell();
 		List<String> argv = new ArrayList<String>();
 		if(recursive){
 			argv.add("-rmr");
@@ -355,8 +288,6 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 			@CliOption(key = { "path" }, mandatory = true, help = " path name") final String path,
 			@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive,
 			@CliOption(key = { "waiting" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether enable waiting list") final boolean waiting) {
-		setupShell();
-
 		List<String> argv = new ArrayList<String>();
 		argv.add("-setrep");
 		if(recursive){
@@ -374,7 +305,6 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 	public void tail(
 			@CliOption(key = { "" }, mandatory = true, help = "file to be tailed") final String path,
 			@CliOption(key = { "file" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether show content while file grow") final boolean file) {
-		setupShell();
 		List<String> argv = new ArrayList<String>();
 		argv.add("-tail");
 		if(file){
@@ -387,7 +317,6 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 	@CliCommand(value = PREFIX + "text", help = "show the text content")
 	public void text(
 			@CliOption(key = { "" }, mandatory = true, help = "file to be showed") final String path) {
-		setupShell();
 		List<String> argv = new ArrayList<String>();
 		argv.add("-text");
 		argv.add(path);
@@ -397,7 +326,6 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 	@CliCommand(value = PREFIX + "touchz", help = "touch the file")
 	public void touchz(
 			@CliOption(key = { "" }, mandatory = true, help = "file to be touched") final String path) {
-		setupShell();
 		List<String> argv = new ArrayList<String>();
 		argv.add("-touchz");
 		argv.add(path);
@@ -423,7 +351,4 @@ public class FsShellCommands implements CommandMarker, ApplicationListener<Confi
 		}
 	}
 
-	private void setupShell() {
-		// no need for this method
-	}
 }

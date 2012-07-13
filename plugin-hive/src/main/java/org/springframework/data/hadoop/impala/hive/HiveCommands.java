@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.data.hadoop.impala.hive.commands;
+package org.springframework.data.hadoop.impala.hive;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.hadoop.impala.hive.HiveConfiguration;
+import org.springframework.data.hadoop.impala.common.ConfigurationHolder;
 import org.springframework.roo.shell.CliCommand;
 import org.springframework.roo.shell.CliOption;
 import org.springframework.roo.shell.CommandMarker;
@@ -28,27 +27,22 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class HiveCommand implements CommandMarker {
-
-	private boolean initialized;
-
-	@Autowired
-	private HiveConfiguration hiveConfiguration;
+public class HiveCommands extends ConfigurationHolder implements CommandMarker {
 
 
+	/* (non-Javadoc)
+	 * @see org.springframework.data.hadoop.impala.common.ConfigurationHolder#init()
+	 */
+	@Override
+	public boolean init() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
 
 	@CliCommand(value = "hive script", help = "run hive script")
 	public void submit(@CliOption(key = { "scriptfile" }, mandatory = true, help = "the hive script file") final String scriptFile) {
-		setupHiveClient();
 
-	}
-
-
-	private void setupHiveClient() {
-		if (!initialized) {
-
-			initialized = true;
-		}
 	}
 
 
