@@ -235,10 +235,17 @@ startScripts.classpath += files(subprojects.collect { subproject ->
    subproject.configurations.default.allArtifacts.files
 })
 
+startScripts.classpath += files(subprojects.collect { subproject ->
+   subproject.configurations.compile.files
+})
+
 applicationDistribution.with {
     into("lib") {
         from files(subprojects.collect { subproject ->
             subproject.configurations.default.allArtifacts.files
+        })
+        from files(subprojects.collect { subproject ->
+            subproject.configurations.compile.files
         })
     } 
 }
