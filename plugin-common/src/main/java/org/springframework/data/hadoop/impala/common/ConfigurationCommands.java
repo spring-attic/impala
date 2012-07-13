@@ -21,6 +21,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.mapreduce.JobSubmissionFiles;
 import org.apache.hadoop.util.GenericOptionsParser;
+import org.apache.hadoop.util.VersionInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -101,14 +102,17 @@ public class ConfigurationCommands implements ApplicationEventPublisherAware, Co
 	@CliCommand(value = { PREFIX + "info" }, help = "Returns basic info about the Hadoop configuration")
 	public String info() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("HadoopConfig [fs=");
+		sb.append("Hadoop [");
+		sb.append(VersionInfo.getVersion());
+		sb.append(" rev.");
+		sb.append(VersionInfo.getRevision());
+		sb.append("][fs=");
 		sb.append(FileSystem.getDefaultUri(hadoopConfiguration));
-		sb.append("] [jt=");
+		sb.append("][jt=");
 		sb.append(hadoopConfiguration.get("mapred.job.tracker"));
 		sb.append("]");
 
 		// TODO: potentially add a check to see whether HDFS is running
-
 		return sb.toString();
 	}
 

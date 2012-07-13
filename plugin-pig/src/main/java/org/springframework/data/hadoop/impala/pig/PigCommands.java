@@ -131,11 +131,14 @@ public class PigCommands implements ApplicationContextAware, CommandMarker {
 	@CliCommand(value = { PREFIX + "info" }, help = "Returns basic info about the Pig configuration")
 	public String info() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("PigConf [fs=");
+		sb.append("Pig [");
+		String pigVersion = PigServer.class.getPackage().getImplementationVersion();
+		sb.append((StringUtils.hasText(pigVersion) ? pigVersion : "unknown"));
+		sb.append("][fs=");
 		sb.append(FileSystem.getDefaultUri(hadoopConfiguration));
-		sb.append("] [jt=");
+		sb.append("][jt=");
 		sb.append((StringUtils.hasText(jobTracker) ? jobTracker : hadoopConfiguration.get("mapred.job.tracker")));
-		sb.append("] [ExecType=");
+		sb.append("][execType=");
 		sb.append((execType != null ? execType.name() : ExecType.MAPREDUCE.name()));
 		sb.append("]");
 		// TODO: potentially add a check to see whether HDFS is running
@@ -174,9 +177,6 @@ public class PigCommands implements ApplicationContextAware, CommandMarker {
 			if (exception != null) {
 				sb.append(" ;Cause=");
 				sb.append(exception.getMessage());
-			}
-			else {
-				sb.append(result.getStatistics().getAllStats());
 			}
 			return sb.toString();
 			
