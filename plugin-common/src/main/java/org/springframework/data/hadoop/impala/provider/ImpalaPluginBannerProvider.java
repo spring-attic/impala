@@ -41,9 +41,9 @@ public class ImpalaPluginBannerProvider implements BannerProvider, CommandMarker
 		buf.append("   ) (   | () () || (    ) || (   ) || (      | (   ) |" + StringUtils.LINE_SEPARATOR);
 		buf.append("   | |   | || || || (____) || (___) || |      | (___) |" + StringUtils.LINE_SEPARATOR);
 		buf.append("   | |   | |(_)| ||  ______)|  ___  || |      |  ___  |" + StringUtils.LINE_SEPARATOR);
-		buf.append("   | |   | |   | || (      | (   ) || |      | (   ) |" + StringUtils.LINE_SEPARATOR);
-		buf.append("___) (___| )   ( || )      | )   ( || (____/\\| )   ( |" + StringUtils.LINE_SEPARATOR);
-		buf.append("\\_______/|/     \\||/       |/     \\|(_______/|/     \\|" + StringUtils.LINE_SEPARATOR);
+		buf.append("   | |   | |   | || (       | (   ) || |      | (   ) |" + StringUtils.LINE_SEPARATOR);
+		buf.append("___) (___| )   ( || )       | )   ( || (____/\\| )   ( |" + StringUtils.LINE_SEPARATOR);
+		buf.append("\\_______/|/     \\||/        |/     \\|(_______/|/     \\|" + StringUtils.LINE_SEPARATOR);
 
 		buf.append("Version:" + this.getVersion());
 		return buf.toString();

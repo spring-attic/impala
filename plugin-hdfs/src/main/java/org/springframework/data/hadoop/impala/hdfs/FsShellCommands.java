@@ -20,11 +20,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.hadoop.fs.FsShell;
-import org.springframework.data.hadoop.impala.common.ConfigurationHolder;
+import org.springframework.data.hadoop.impala.common.ConfigurationAware;
 import org.springframework.roo.shell.CliCommand;
 import org.springframework.roo.shell.CliOption;
-import org.springframework.roo.shell.CommandMarker;
 import org.springframework.roo.support.logging.HandlerUtils;
 import org.springframework.stereotype.Component;
 
@@ -35,7 +36,7 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class FsShellCommands extends ConfigurationHolder implements CommandMarker{
+public class FsShellCommands extends ConfigurationAware {
 
 	// Constants
 	private static Logger LOGGER = HandlerUtils.getLogger(FsShellCommands.class);
@@ -43,12 +44,17 @@ public class FsShellCommands extends ConfigurationHolder implements CommandMarke
 
 	private FsShell shell;
 
+	@PostConstruct
+	public void init() {
+		shell = new FsShell(getHadoopConfiguration());
+	}
+
 	@Override
-	public boolean init() {
+	public boolean configurationChanged() {
 		if (shell != null) {
 			LOGGER.info("Hadoop configuration changed, re-initializing shell...");
 		}
-		shell = new FsShell(getHadoopConfiguration());
+		init();
 		return true;
 	}
 

@@ -20,17 +20,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.roo.shell.ParseResult;
 import org.springframework.shell.ExecutionProcessor;
-import org.springframework.stereotype.Component;
 
 /**
- * Base configuration to load Hadoop configuration from resource or get configuration from user.
+ * Utility base class for components monitoring {@link Configuration} changes in order to update state. 
  * 
+ * @author Costin Leau
  * @author Jarred Li
- *
  */
-@Component
-public abstract class ConfigurationHolder implements ApplicationListener<ConfigurationModifiedEvent>,
-		ExecutionProcessor {
+public abstract class ConfigurationAware implements ApplicationListener<ConfigurationModifiedEvent>, ExecutionProcessor {
+
 	@Autowired
 	private Configuration hadoopConfiguration;
 
@@ -45,15 +43,18 @@ public abstract class ConfigurationHolder implements ApplicationListener<Configu
 	public ParseResult beforeInvocation(ParseResult invocationContext) {
 		// check whether the Hadoop configuration has changed
 		if (needToReinitialize) {
-			boolean result = init();
-			if (result) {
-				this.needToReinitialize = false;
-			}
+			this.needToReinitialize = !configurationChanged();
 		}
 		return invocationContext;
 	}
 
-	public abstract boolean init();
+	/**
+	 * Called before invoking a command in case the configuration changed.
+	 * Should return true if the change has been acknowledged, false otherwise 
+	 * 
+	 * @return true if the change has been acknowledged, false otherwise.
+	 */
+	public abstract boolean configurationChanged();
 
 	@Override
 	public void afterReturningInvocation(ParseResult invocationContext, Object result) {
@@ -66,32 +67,12 @@ public abstract class ConfigurationHolder implements ApplicationListener<Configu
 		// no-op
 	}
 
-
 	/**
+	 * Gets the hadoop configuration.
+	 *
 	 * @return the hadoopConfiguration
 	 */
 	public Configuration getHadoopConfiguration() {
 		return hadoopConfiguration;
-	}
-
-	/**
-	 * @param hadoopConfiguration the hadoopConfiguration to set
-	 */
-	public void setHadoopConfiguration(Configuration hadoopConfiguration) {
-		this.hadoopConfiguration = hadoopConfiguration;
-	}
-
-	/**
-	 * @return the needToReinitialize
-	 */
-	public boolean isNeedToReinitialize() {
-		return needToReinitialize;
-	}
-
-	/**
-	 * @param needToReinitialize the needToReinitialize to set
-	 */
-	public void setNeedToReinitialize(boolean needToReinitialize) {
-		this.needToReinitialize = needToReinitialize;
 	}
 }

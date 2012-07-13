@@ -35,10 +35,9 @@ import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
-import org.springframework.data.hadoop.impala.common.ConfigurationHolder;
+import org.springframework.data.hadoop.impala.common.ConfigurationAware;
 import org.springframework.roo.shell.CliCommand;
 import org.springframework.roo.shell.CliOption;
-import org.springframework.roo.shell.CommandMarker;
 import org.springframework.stereotype.Component;
 
 /**
@@ -48,15 +47,12 @@ import org.springframework.stereotype.Component;
  * @author Author of <code>org.apache.hadoop.util.RunJar</code>
  */
 @Component
-public class MapReduceCommands extends ConfigurationHolder implements CommandMarker {
+public class MapReduceCommands extends ConfigurationAware {
 	
 	private JobClient jobClient;
 
-	/* (non-Javadoc)
-	 * @see org.springframework.data.hadoop.impala.common.ConfigurationHolder#init()
-	 */
 	@Override
-	public boolean init() {
+	public boolean configurationChanged() {
 		boolean result = true;
 		if(jobClient != null){
 			

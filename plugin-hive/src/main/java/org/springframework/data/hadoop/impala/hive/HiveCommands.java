@@ -15,10 +15,9 @@
  */
 package org.springframework.data.hadoop.impala.hive;
 
-import org.springframework.data.hadoop.impala.common.ConfigurationHolder;
+import org.springframework.data.hadoop.impala.common.ConfigurationAware;
 import org.springframework.roo.shell.CliCommand;
 import org.springframework.roo.shell.CliOption;
-import org.springframework.roo.shell.CommandMarker;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,23 +26,15 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class HiveCommands extends ConfigurationHolder implements CommandMarker {
+public class HiveCommands extends ConfigurationAware {
 
-
-	/* (non-Javadoc)
-	 * @see org.springframework.data.hadoop.impala.common.ConfigurationHolder#init()
-	 */
 	@Override
-	public boolean init() {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean configurationChanged() {
+		return true;
 	}
-	
 
 	@CliCommand(value = "hive script", help = "run hive script")
 	public void submit(@CliOption(key = { "scriptfile" }, mandatory = true, help = "the hive script file") final String scriptFile) {
-
+		throw new UnsupportedOperationException();
 	}
-
-
 }
