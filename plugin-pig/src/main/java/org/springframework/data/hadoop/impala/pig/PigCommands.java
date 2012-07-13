@@ -147,8 +147,8 @@ public class PigCommands implements ApplicationContextAware, CommandMarker {
 	}
 
 	@CliCommand(value = { PREFIX + "script" }, help = "Executes a Pig script")
-	public String script(@CliOption(key = { "", "location" }, mandatory = true, help = "Script location") String location,
-			@CliOption(key = { "args" }, mandatory = false, help = "Script arguments") String args) throws Exception {
+	public String script(@CliOption(key = { "", "location" }, mandatory = true, help = "Script location") String location)
+			throws Exception {
 
 		Resource resource = resourceResolver.getResource(location);
 		Assert.isTrue(resource.exists(), "No resource found at " + location);
