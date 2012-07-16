@@ -23,8 +23,8 @@ import javax.annotation.PostConstruct;
 
 import org.apache.hadoop.fs.FsShell;
 import org.springframework.data.hadoop.impala.common.ConfigurationAware;
-import org.springframework.roo.shell.CliCommand;
-import org.springframework.roo.shell.CliOption;
+import org.springframework.shell.core.annotation.CliCommand;
+import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
 
 /**

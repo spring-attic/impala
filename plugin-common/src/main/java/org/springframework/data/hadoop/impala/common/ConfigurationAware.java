@@ -20,8 +20,8 @@ import java.util.logging.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
-import org.springframework.roo.shell.ParseResult;
-import org.springframework.shell.ExecutionProcessor;
+import org.springframework.shell.core.ExecutionProcessor;
+import org.springframework.shell.event.ParseResult;
 
 /**
  * Utility base class for components monitoring {@link Configuration} changes in order to update state. 

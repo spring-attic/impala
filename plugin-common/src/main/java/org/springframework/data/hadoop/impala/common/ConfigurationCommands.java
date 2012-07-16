@@ -26,11 +26,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.data.hadoop.configuration.ConfigurationUtils;
-import org.springframework.roo.shell.CliCommand;
-import org.springframework.roo.shell.CliOption;
-import org.springframework.roo.shell.CommandMarker;
-import org.springframework.roo.shell.ParseResult;
-import org.springframework.shell.ExecutionProcessor;
+import org.springframework.shell.core.CommandMarker;
+import org.springframework.shell.core.ExecutionProcessor;
+import org.springframework.shell.core.annotation.CliCommand;
+import org.springframework.shell.core.annotation.CliOption;
+import org.springframework.shell.event.ParseResult;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
