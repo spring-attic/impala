@@ -85,7 +85,11 @@ project('plugin-hive') {
 	description = 'Impala Hive plugin'
 	dependencies {
 		compile project(':plugin-common')
-		compile("org.apache.hive:hive-service:$hiveVersion", optional)
+		compile("org.apache.hive:hive-service:$hiveVersion") {
+            exclude module: "antlr"
+            exclude module: "org.antlr"
+            exclude module: "antlr-runtime"
+		}
 	}
 }
 
@@ -232,13 +236,18 @@ configure(rootProject) {
 apply plugin: 'application'
 
 mainClassName = "org.springframework.shell.Bootstrap"
-startScripts.classpath += files(subprojects.collect { subproject ->
-   subproject.configurations.default.allArtifacts.files
-})
-
-startScripts.classpath += files(subprojects.collect { subproject ->
-   subproject.configurations.compile.files
-})
+startScripts {
+    classpath = files("foobarbaz")
+    doLast {
+        def text = unixScript.getText("utf-8")
+        def changed = text.replaceFirst("foobarbaz", "\\*")
+        unixScript.write(changed)
+        
+        def winText = windowsScript.getText("utf-8")
+        def changedWin = winText.replaceFirst("foobarbaz", "\\*")
+        windowsScript.write(changedWin)
+    }
+}
 
 applicationDistribution.with {
     into("lib") {
