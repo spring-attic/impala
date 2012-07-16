@@ -85,6 +85,7 @@ project('plugin-hive') {
 	description = 'Impala Hive plugin'
 	dependencies {
 		compile project(':plugin-common')
+		compile("org.apache.hive:hive-service:$hiveVersion", optional)
 	}
 }
 
