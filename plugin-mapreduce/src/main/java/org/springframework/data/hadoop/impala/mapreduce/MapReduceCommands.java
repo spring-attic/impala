@@ -88,7 +88,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 
-	@CliCommand(value = "mr job counter", help = "query job counter.")
+	@CliCommand(value = "mr job counter", help = "print the counter value")
 	public void counter(@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid, @CliOption(key = { "groupname" }, mandatory = true, help = "the job Id") final String groupName, @CliOption(key = { "countername" }, mandatory = true, help = "the job Id") final String counterName) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-counter");
@@ -106,7 +106,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 
-	@CliCommand(value = "mr job events", help = "query Map Reduce events.")
+	@CliCommand(value = "mr job events", help = "print the events' details received by jobtracker for the given range")
 	public void events(@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid, @CliOption(key = { "from" }, mandatory = true, help = "from event number") final String from, @CliOption(key = { "number" }, mandatory = true, help = "total number of events") final String number) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-events");
@@ -116,8 +116,8 @@ public class MapReduceCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 
-	@CliCommand(value = "mr job history", help = "list MapReduce Job history.")
-	public void history(@CliOption(key = { "all" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "list all jobs") final boolean all, @CliOption(key = { "" }, mandatory = true, help = "output directory") final String outputDir) {
+	@CliCommand(value = "mr job history", help = "print job details, failed and killed tip details")
+	public void history(@CliOption(key = { "all" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "list all jobs") final boolean all, @CliOption(key = { "" }, mandatory = true, help = "job output directory") final String outputDir) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-history");
 		if (all) {
@@ -154,7 +154,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 
-	@CliCommand(value = "mr job set priority", help = "Changes the priority of the job.")
+	@CliCommand(value = "mr job set priority", help = "change the priority of the job.")
 	public void setPriority(@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid, @CliOption(key = { "priority" }, mandatory = true, help = "the job priority") final JobPriority priority) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-set-priority");
