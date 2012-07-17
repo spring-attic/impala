@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
@@ -44,6 +42,7 @@ import org.springframework.data.hadoop.impala.common.util.SecurityUtil;
 import org.springframework.data.hadoop.impala.common.util.SecurityUtil.ExitTrappedException;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
+import org.springframework.shell.event.ParseResult;
 import org.springframework.stereotype.Component;
 
 
@@ -61,9 +60,21 @@ public class MapReduceCommands extends ConfigurationAware {
 	@Autowired
 	private SecurityUtil securityUtil;
 
-	@PostConstruct
-	public void init() throws IOException {
+	@Override
+	public ParseResult beforeInvocation(ParseResult invocationContext) {
+		invocationContext = super.beforeInvocation(invocationContext);
+		if (jobClient == null) {
+			init();
+		}
+		return invocationContext;
+	}
+
+	public void init() {
+		try {
 			jobClient = new JobClient(new JobConf(getHadoopConfiguration()));
+		} catch (IOException ex) {
+			LOG.severe("Cannot create job client" + ex.getMessage());
+		}
 	}
 
 	@Override
