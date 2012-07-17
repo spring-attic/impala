@@ -7,7 +7,7 @@ allprojects {
 	apply plugin: 'base'
 	apply plugin: 'java'
 	apply plugin: 'eclipse'
-	apply from: "${rootProject.projectDir}/maven.gradle"
+    apply from: "${rootProject.projectDir}/maven.gradle"
 
 	repositories {
 		maven { url "http://repo.springsource.org/libs-snapshot" }
@@ -15,17 +15,19 @@ allprojects {
 	}
 
 	dependencies {
-        	compile ("org.apache.hadoop:hadoop-core:$hadoopVersion", optional)
-		compile ("org.springframework.data:spring-data-hadoop:$shdpVersion") {
-			exclude module: "jruby-complete"
-		}
-		compile "org.springframework.shell:spring-shell:$springShellVersion"
+        compile ("org.apache.hadoop:hadoop-core:$hadoopVersion", optional)
+       	compile ("org.springframework.data:spring-data-hadoop:$shdpVersion") {
+            exclude module: "hbase"
+        }
+
+       	compile "org.springframework.shell:spring-shell:$springShellVersion"
 
 		testCompile "junit:junit:$junitVersion"
 	}
 	
     sourceCompatibility = 1.6
     targetCompatibility = 1.6
+    
 }
 
 configure(subprojects) { subproject ->
@@ -252,14 +254,17 @@ startScripts {
     }
 }
 
+task allDeps { dependsOn { allprojects.tasks.dependencies } }
+
+configurations { dist }
+
+dependencies {
+  dist subprojects
+}
+
 applicationDistribution.with {
     into("lib") {
-        from files(subprojects.collect { subproject ->
-            subproject.configurations.default.allArtifacts.files
-        })
-        from files(subprojects.collect { subproject ->
-            subproject.configurations.compile.files
-        })
+        from configurations.dist
     } 
 }
 
