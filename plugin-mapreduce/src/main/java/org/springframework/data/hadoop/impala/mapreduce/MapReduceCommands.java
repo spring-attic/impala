@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -37,10 +38,14 @@ import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.hadoop.impala.common.ConfigurationAware;
+import org.springframework.data.hadoop.impala.common.util.SecurityUtil;
+import org.springframework.data.hadoop.impala.common.util.SecurityUtil.ExitTrappedException;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
+
 
 /**
  * Commands to submit and interact with MapReduce jobs
@@ -52,6 +57,9 @@ import org.springframework.stereotype.Component;
 public class MapReduceCommands extends ConfigurationAware {
 
 	private JobClient jobClient;
+	
+	@Autowired
+	private SecurityUtil securityUtil;
 
 	@PostConstruct
 	public void init() throws IOException {
@@ -179,6 +187,23 @@ public class MapReduceCommands extends ConfigurationAware {
 
 	@CliCommand(value = "mr jar", help = "run Map Reduce Job in the jar")
 	public void jar(@CliOption(key = { "jarfile" }, mandatory = true, help = "jar file name") final String jarFileName, @CliOption(key = "mainclass", mandatory = true, help = "main class name") final String mainClassName, @CliOption(key = "args", mandatory = false, help = "input path") final String args) {
+		securityUtil.forbidSystemExitCall();
+		try {
+			runJar(jarFileName, mainClassName, args);
+		} catch (ExitTrappedException e) {
+			System.out.println("The MR job call System.exit. This is prevented.");
+		} finally {
+			securityUtil.enableSystemExitCall();
+		}
+	}
+
+	/**
+	 * @param jarFileName
+	 * @param mainClassName
+	 * @param args
+	 * @throws SecurityUtil.ExitTrappedException 
+	 */
+	public void runJar(final String jarFileName, final String mainClassName, final String args) throws ExitTrappedException {
 		File file = new File(jarFileName);
 		File tmpDir = new File(new Configuration().get("hadoop.tmp.dir"));
 		tmpDir.mkdirs();
@@ -231,8 +256,16 @@ public class MapReduceCommands extends ConfigurationAware {
 			String[] newArgs = args.split(" ");
 			main.invoke(null, new Object[] { newArgs });
 		} catch (Exception e) {
-			System.err.println("failed to run MR job. Failed Message:" + e.getMessage());
-			//e.printStackTrace();
+			if(e instanceof InvocationTargetException)
+			{
+				if(e.getCause() instanceof ExitTrappedException){
+					throw (ExitTrappedException)e.getCause();
+				}
+			}
+			else{
+				System.err.println("failed to run MR job. Failed Message:" + e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	}
 

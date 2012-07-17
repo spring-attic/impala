@@ -16,4 +16,6 @@
 	
 	<context:component-scan base-package="org.springframework.data.hadoop.impala.common"/>
 	
+	<bean class="org.springframework.data.hadoop.impala.common.util.SecurityUtil" />
+	
 </beans>
