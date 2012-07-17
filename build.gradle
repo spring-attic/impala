@@ -89,6 +89,7 @@ project('plugin-hive') {
             exclude module: "antlr"
             exclude module: "org.antlr"
             exclude module: "antlr-runtime"
+            exclude module: "jline"
 		}
 	}
 }
@@ -97,7 +98,7 @@ project('plugin-pig') {
 	description = 'Impala Pig plugin'
 	dependencies {
 		compile project(':plugin-common')
-		compile("org.apache.pig:pig:$pigVersion", optional)
+		compile("org.apache.pig:pig:$pigVersion")
 	}
 }
 
