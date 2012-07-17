@@ -264,7 +264,7 @@ public class MapReduceCommands extends ConfigurationAware {
 			}
 			else{
 				System.err.println("failed to run MR job. Failed Message:" + e.getMessage());
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
 		}
 	}
