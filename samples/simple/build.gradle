@@ -8,15 +8,30 @@ repositories {
 }
 
 dependencies {
-	compile "org.springframework.data.hadoop.impala:plugin-hdfs:$impalaVersion"
-	compile "org.springframework.data.hadoop.impala:plugin-mapreduce:$impalaVersion"
-	compile "org.springframework.data.hadoop.impala:plugin-hive:$impalaVersion"
+	compile ("org.springframework.data.hadoop.impala:plugin-hdfs:$impalaVersion") {
+		exclude module: "hbase"
+		exclude module: "hive"
+	}
+
+	compile ("org.springframework.data.hadoop.impala:plugin-mapreduce:$impalaVersion") {
+		exclude module: "hbase"
+		exclude module: "hive"
+	}
+	compile ("org.springframework.data.hadoop.impala:plugin-hive:$impalaVersion") {
+		exclude module: "hbase"
+		exclude module: "jline"
+	}
+	compile ("org.springframework.data.hadoop.impala:plugin-pig:$impalaVersion") {
+		exclude module: "hbase"
+		exclude module: "hive"
+	}
+	compile("org.apache.pig:pig:$pigVersion")
 	compile "org.apache.hadoop:hadoop-core:$hadoopVersion"
 }
 
 task copyDependency(type: Copy) {
 	into "$buildDir/libs/dependency"
-	from configurations.runtime	
+	from configurations.runtime
 }
 
 project.ext.springShellJar = configurations.runtime.find { file -> file.name.contains("spring-shell")}
@@ -29,14 +44,12 @@ jar {
 	baseName "simple-cli"
 	manifest {
 		attributes 'Main-Class' : 'org.springframework.shell.Bootstrap', "Class-Path" : project.ext.manifestClasspath
-	}	
+	}
 }
 
 
 eclipse {
-	project {
-		name = "simple-cli"
-	}
+	project { name = "simple-cli" }
 }
 
 
