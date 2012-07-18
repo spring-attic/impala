@@ -27,6 +27,7 @@ import org.apache.hadoop.io.IOUtils;
 import org.apache.pig.ExecType;
 import org.apache.pig.PigServer;
 import org.apache.pig.backend.executionengine.ExecJob;
+import org.apache.pig.tools.pigstats.ScriptState;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
@@ -134,7 +135,12 @@ public class PigCommands implements ApplicationContextAware, CommandMarker {
 	public String info() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Pig [");
-		String pigVersion = PigServer.class.getPackage().getImplementationVersion();
+		String pigVersion = ScriptState.class.getPackage().getImplementationVersion();
+		// for some reason this seems to fail 
+		if (!StringUtils.hasText(pigVersion)) {
+			pigVersion = ScriptState.get().getPigVersion();
+		}
+
 		sb.append((StringUtils.hasText(pigVersion) ? pigVersion : "unknown"));
 		sb.append("][fs=");
 		sb.append(FileSystem.getDefaultUri(hadoopConfiguration));
