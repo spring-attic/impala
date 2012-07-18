@@ -202,7 +202,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		try {
 			runJar(jarFileName, mainClassName, args);
 		} catch (ExitTrappedException e) {
-			System.out.println("The MR job call System.exit. This is prevented.");
+			LOG.info("The MR job call System.exit. This is prevented.");
 		} finally {
 			securityUtil.enableSystemExitCall();
 		}
@@ -219,7 +219,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		File tmpDir = new File(new Configuration().get("hadoop.tmp.dir"));
 		tmpDir.mkdirs();
 		if (!tmpDir.isDirectory()) {
-			System.err.println("Mkdirs failed to create " + tmpDir);
+			LOG.severe("Mkdirs failed to create " + tmpDir);
 		}
 
 		try {
@@ -227,8 +227,8 @@ public class MapReduceCommands extends ConfigurationAware {
 			workDir.delete();
 			workDir.mkdirs();
 			if (!workDir.isDirectory()) {
-				System.err.println("Mkdirs failed to create " + workDir);
-				System.exit(-1);
+				LOG.severe("Mkdirs failed to create " + workDir);
+				return;
 			}
 
 			Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -274,8 +274,7 @@ public class MapReduceCommands extends ConfigurationAware {
 				}
 			}
 			else{
-				System.err.println("failed to run MR job. Failed Message:" + e.getMessage());
-				//e.printStackTrace();
+				LOG.severe("failed to run MR job. Failed Message:" + e.getMessage());
 			}
 		}
 	}
@@ -298,7 +297,7 @@ public class MapReduceCommands extends ConfigurationAware {
 			fos = new FileOutputStream(new File(configDir + Path.SEPARATOR + "mapred-site.xml"));
 			config.writeXml(fos);
 		} catch (Exception e) {
-			System.err.println("Save user's configuration failed. Message:" + e.getMessage());
+			LOG.severe("Save user's configuration failed. Message:" + e.getMessage());
 		}
 
 	}
@@ -341,8 +340,8 @@ public class MapReduceCommands extends ConfigurationAware {
 	private void run(String[] argv) {
 		try {
 			jobClient.run(argv);
-		} catch (Exception e) {
-			System.err.println("run MR job failed. Failed Message:" + e.getMessage());
+		} catch (Throwable t) {
+			LOG.severe("run MR job failed. Failed Message:" + t.getMessage());
 		}
 	}
 

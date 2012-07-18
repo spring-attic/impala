@@ -353,8 +353,8 @@ public class FsShellCommands extends ConfigurationAware {
 	private void run(String[] argv) {
 		try {
 			shell.run(argv);
-		} catch (Exception e) {
-			System.err.println("run HDFS shell failed. " + e.getMessage());
+		} catch (Throwable t) {
+			LOG.severe("run HDFS shell failed. " + t.getMessage());
 		}
 	}
 
