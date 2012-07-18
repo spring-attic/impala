@@ -17,6 +17,7 @@ package org.springframework.data.hadoop.impala.hive;
 
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 
@@ -46,6 +47,8 @@ public class HiveCommands implements ApplicationContextAware, CommandMarker {
 
 	private static final String PREFIX = "hive ";
 
+	private final Logger LOG = Logger.getLogger(getClass().getName());
+	
 	@Autowired
 	private Configuration hadoopConfiguration;
 
@@ -90,8 +93,8 @@ public class HiveCommands implements ApplicationContextAware, CommandMarker {
 	}
 
 	@CliCommand(value = { PREFIX + "cfg" }, help = "Configures Hive")
-	public void config(@CliOption(key = { "host" }, mandatory = false, help = "Server host") String host, 
-			@CliOption(key = { "port" }, mandatory = false, help = "Server port") Integer port, 
+	public void config(@CliOption(key = { "host" }, mandatory = true, help = "Server host") String host, 
+			@CliOption(key = { "port" }, mandatory = true, help = "Server port") Integer port, 
 			@CliOption(key = { "timeout" }, mandatory = false, help = "Connection Timeout") Long timeout)
 			throws Exception {
 		
@@ -107,20 +110,24 @@ public class HiveCommands implements ApplicationContextAware, CommandMarker {
 	}
 
 	@CliCommand(value = { PREFIX + "script" }, help = "Executes a Hive script")
-	public void script(@CliOption(key = { "", "location" }, mandatory = true, help = "Script location") String location)
-			throws Exception {
-
+	public void script(@CliOption(key = { "", "location" }, mandatory = true, help = "Script location") String location){
+		if (location.startsWith("/")) {
+			location = "file://" + location;
+		}
 		Resource resource = resourceResolver.getResource(location);
-		Assert.isTrue(resource.exists(), "No resource found at " + location);
-
-		// for each run, start a new Hive instance
-		init();
-
-		hiveClientFactory.setScripts(Collections.singleton(resource));
+		if (!resource.exists()) {
+			LOG.severe("No resource found at " + location);
+		}
 
 		try {
+			// for each run, start a new Hive instance
+			init();
+
+			hiveClientFactory.setScripts(Collections.singleton(resource));
 			hiveClientFactory.afterPropertiesSet();
 			hiveClientFactory.start();
+		} catch (Throwable t) {
+			LOG.severe("Run hive script failed. Failed message:" + t.getMessage());
 		} finally {
 			hiveClientFactory.destroy();
 		}

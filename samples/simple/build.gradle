@@ -11,22 +11,31 @@ dependencies {
 	compile ("org.springframework.data.hadoop.impala:plugin-hdfs:$impalaVersion") {
 		exclude module: "hbase"
 		exclude module: "hive"
+		exclude module: "antlr"
 	}
 
 	compile ("org.springframework.data.hadoop.impala:plugin-mapreduce:$impalaVersion") {
 		exclude module: "hbase"
 		exclude module: "hive"
+		exclude module: "antlr"
 	}
 	compile ("org.springframework.data.hadoop.impala:plugin-hive:$impalaVersion") {
 		exclude module: "hbase"
 		exclude module: "jline"
+		exclude module: "antlr"
 	}
 	compile ("org.springframework.data.hadoop.impala:plugin-pig:$impalaVersion") {
 		exclude module: "hbase"
 		exclude module: "hive"
+		exclude module: "antlr"
 	}
-	compile("org.apache.pig:pig:$pigVersion")
-	compile "org.apache.hadoop:hadoop-core:$hadoopVersion"
+	compile("org.apache.pig:pig:$pigVersion"){
+		exclude module: "antlr"
+	}
+	compile("org.antlr:antlr-runtime:3.4")
+	compile("org.apache.hadoop:hadoop-core:$hadoopVersion"){
+		exclude module: "antlr"
+	}
 }
 
 task copyDependency(type: Copy) {

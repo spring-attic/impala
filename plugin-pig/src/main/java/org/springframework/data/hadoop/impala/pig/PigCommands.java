@@ -17,6 +17,7 @@ package org.springframework.data.hadoop.impala.pig;
 
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 
@@ -51,6 +52,8 @@ import org.springframework.util.StringUtils;
 public class PigCommands implements ApplicationContextAware, CommandMarker {
 
 	private static final String PREFIX = "pig ";
+
+	private final Logger LOG = Logger.getLogger(getClass().getName());
 
 	@Autowired
 	private Configuration hadoopConfiguration;
@@ -116,10 +119,11 @@ public class PigCommands implements ApplicationContextAware, CommandMarker {
 	public void config(@CliOption(key = { "props" }, help = "Properties file location") String location,
 			@CliOption(key = { "jobTracker" }, mandatory = false, help = "Job tracker") String jobTracker,
 			@CliOption(key = { "execType" }, mandatory = false, help = "Execution type") ExecType execType,
-			@CliOption(key = { "jobName" }, mandatory = false, help = "Job name") String jobName,
-			@CliOption(key = { "jobPriority" }, mandatory = false, help = "Job priority") String jobPriority,
-			@CliOption(key = { "validateEachStatement" }, mandatory = false, help = "Validation of each statement") Boolean validateEachStatement) throws Exception {
-		
+			@CliOption(key = { "jobName" }, mandatory = false, help = "Job name") String jobName, 
+			@CliOption(key = { "jobPriority" }, mandatory = false, help = "Job priority") String jobPriority, 
+			@CliOption(key = { "validateEachStatement" }, mandatory = false, help = "Validation of each statement") Boolean validateEachStatement)
+			throws Exception {
+
 		this.jobTracker = jobTracker;
 		this.jobName = jobName;
 		this.jobPriority = jobPriority;
@@ -147,18 +151,21 @@ public class PigCommands implements ApplicationContextAware, CommandMarker {
 	}
 
 	@CliCommand(value = { PREFIX + "script" }, help = "Executes a Pig script")
-	public String script(@CliOption(key = { "", "location" }, mandatory = true, help = "Script location") String location)
-			throws Exception {
-
+	public String script(@CliOption(key = { "", "location" }, mandatory = true, help = "Script location") String location) {
+		if(location.startsWith("/")){
+			location = "file://"+ location;
+		}
 		Resource resource = resourceResolver.getResource(location);
-		Assert.isTrue(resource.exists(), "No resource found at " + location);
-
-		// for each run, start a new Pig instance
-		init();
-
-		PigServer pig = pigFactory.getObject();
-
+		if(!resource.exists()){
+			LOG.severe("No resource found at " + location);
+		}
+		PigServer pig = null;
 		try {
+			// for each run, start a new Pig instance
+			init();
+
+			pig = pigFactory.getObject();
+
 			pig.setBatchOn();
 			pig.getPigContext().connect();
 
@@ -179,11 +186,12 @@ public class PigCommands implements ApplicationContextAware, CommandMarker {
 				sb.append(exception.getMessage());
 			}
 			return sb.toString();
-			
-					
+		} catch (Throwable t) {
+			LOG.severe("Run pig script failed. Failed message:" + t.getMessage());
 		} finally {
 			if (pig != null)
 				pig.shutdown();
 		}
+		return "";
 	}
 }
