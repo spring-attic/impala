@@ -27,13 +27,13 @@ allprojects {
 	
     sourceCompatibility = 1.6
     targetCompatibility = 1.6
-    
 }
 
 configure(subprojects) { subproject ->
     jar {
         manifest.attributes['Implementation-Title'] = subproject.name
         manifest.attributes['Implementation-Version'] = subproject.version
+        manifest.attributes['Main-Class'] = 'org.springframework.shell.Bootstrap'
 
         from("${rootProject.projectDir}/docs/info") {
             include "license.txt"
@@ -245,11 +245,11 @@ startScripts {
     classpath = files("foobarbaz")
     doLast {
         def text = unixScript.getText("utf-8")
-        def changed = text.replaceFirst("foobarbaz", "\\*")
+        def changed = text.replaceAll("foobarbaz", java.util.regex.Matcher.quoteReplacement(';$APP_HOME/lib/*'))
         unixScript.write(changed)
         
         def winText = windowsScript.getText("utf-8")
-        def changedWin = winText.replaceFirst("foobarbaz", "\\*")
+        def changedWin = winText.replaceAll("foobarbaz", java.util.regex.Matcher.quoteReplacement(';%APP_HOME%\\lib\\*'))
         windowsScript.write(changedWin)
     }
 }
@@ -264,6 +264,7 @@ dependencies {
 
 applicationDistribution.with {
     into("lib") {
+        from file('plugin-common/src/main/resources/log4j.properties')
         from configurations.dist
     } 
 }
