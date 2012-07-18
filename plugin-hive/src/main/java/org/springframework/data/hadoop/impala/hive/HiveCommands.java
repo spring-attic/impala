@@ -85,7 +85,7 @@ public class HiveCommands implements ApplicationContextAware, CommandMarker {
 
 	@CliCommand(value = { PREFIX + "cfg" }, help = "Configures Hive")
 	public String config(@CliOption(key = { "host" }, mandatory = false, help = "Server host") String host,
-			@CliOption(key = { "port" }, mandatory = true, help = "Server port") Integer port, 
+			@CliOption(key = { "port" }, mandatory = false, help = "Server port") Integer port,
 			@CliOption(key = { "timeout" }, mandatory = false, help = "Connection Timeout") Long timeout)
 			throws Exception {
 		

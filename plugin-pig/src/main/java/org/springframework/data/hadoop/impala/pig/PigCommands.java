@@ -153,7 +153,7 @@ public class PigCommands implements ApplicationContextAware, CommandMarker {
 		Resource resource = resourceResolver.getResource(location);
 
 		if (!resource.exists()) {
-			return "No resolve resource " + location;
+			return "Cannot resolve " + location;
 		}
 
 		String uri = location;

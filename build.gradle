@@ -74,7 +74,7 @@ project('plugin-hdfs') {
     description = 'Impala HDFS plugin'
     dependencies {
         compile project(':plugin-common')
-		runtime "javax.ws.rs:jsr311-api:$jsr311Version"
+		compile "javax.ws.rs:jsr311-api:$jsr311Version"
     }
 }
 
@@ -103,6 +103,7 @@ project('plugin-pig') {
 	dependencies {
 		compile project(':plugin-common')
 		compile("org.apache.pig:pig:$pigVersion")
+		compile "org.antlr:antlr-runtime:3.4"
 	}
 }
 
