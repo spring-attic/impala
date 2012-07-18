@@ -22,10 +22,9 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 
 import org.apache.hadoop.hive.conf.HiveConf;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.data.hadoop.hive.HiveClientFactoryBean;
 import org.springframework.shell.core.CommandMarker;
@@ -40,7 +39,7 @@ import org.springframework.util.StringUtils;
  * @author Costin Leau
  */
 @Component
-public class HiveCommands implements ApplicationContextAware, CommandMarker {
+public class HiveCommands implements CommandMarker {
 
 	private static final String PREFIX = "hive ";
 
@@ -50,7 +49,8 @@ public class HiveCommands implements ApplicationContextAware, CommandMarker {
 
 	private HiveClientFactoryBean hiveClientFactory;
 
-	private ResourcePatternResolver resourceResolver;
+	private ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver(
+			new FileSystemResourceLoader());
 
 	@PostConstruct
 	public void init() throws Exception {
@@ -61,12 +61,6 @@ public class HiveCommands implements ApplicationContextAware, CommandMarker {
 		hiveClientFactory.setPort(port);
 		hiveClientFactory.setTimeout(timeout.intValue());
 	}
-
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.resourceResolver = applicationContext;
-	}
-
 
 	private String info() {
 		StringBuilder sb = new StringBuilder();

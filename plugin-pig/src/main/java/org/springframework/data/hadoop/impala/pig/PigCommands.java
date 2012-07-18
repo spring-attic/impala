@@ -28,12 +28,11 @@ import org.apache.pig.ExecType;
 import org.apache.pig.PigServer;
 import org.apache.pig.backend.executionengine.ExecJob;
 import org.apache.pig.tools.pigstats.ScriptState;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.data.hadoop.pig.PigContextFactoryBean;
 import org.springframework.data.hadoop.pig.PigServerFactoryBean;
@@ -49,7 +48,7 @@ import org.springframework.util.StringUtils;
  * @author Costin Leau
  */
 @Component
-public class PigCommands implements ApplicationContextAware, CommandMarker {
+public class PigCommands implements CommandMarker {
 
 	private static final String PREFIX = "pig ";
 
@@ -64,7 +63,8 @@ public class PigCommands implements ApplicationContextAware, CommandMarker {
 	private Boolean validateEachStatement;
 	private String propertiesLocation;
 
-	private ResourcePatternResolver resourceResolver;
+	private ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver(
+			new FileSystemResourceLoader());
 
 	@PostConstruct
 	public void init() throws Exception {
@@ -106,11 +106,6 @@ public class PigCommands implements ApplicationContextAware, CommandMarker {
 		}
 
 		return null;
-	}
-
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.resourceResolver = applicationContext;
 	}
 
 	@CliCommand(value = { PREFIX + "cfg" }, help = "Configures Pig")
