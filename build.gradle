@@ -33,7 +33,6 @@ configure(subprojects) { subproject ->
     jar {
         manifest.attributes['Implementation-Title'] = subproject.name
         manifest.attributes['Implementation-Version'] = subproject.version
-        manifest.attributes['Main-Class'] = 'org.springframework.shell.Bootstrap'
 
         from("${rootProject.projectDir}/docs/info") {
             include "license.txt"
@@ -246,7 +245,7 @@ startScripts {
     classpath = files("foobarbaz")
     doLast {
         def text = unixScript.getText("utf-8")
-        def changed = text.replaceAll("foobarbaz", java.util.regex.Matcher.quoteReplacement(';$APP_HOME/lib/*'))
+        def changed = text.replaceAll("foobarbaz", java.util.regex.Matcher.quoteReplacement(':$APP_HOME/lib/*'))
         unixScript.write(changed)
         
         def winText = windowsScript.getText("utf-8")
