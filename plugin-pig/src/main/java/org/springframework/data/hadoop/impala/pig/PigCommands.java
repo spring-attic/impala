@@ -15,9 +15,9 @@
  */
 package org.springframework.data.hadoop.impala.pig;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 
@@ -40,7 +40,6 @@ import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
@@ -52,8 +51,6 @@ import org.springframework.util.StringUtils;
 public class PigCommands implements ApplicationContextAware, CommandMarker {
 
 	private static final String PREFIX = "pig ";
-
-	private final Logger LOG = Logger.getLogger(getClass().getName());
 
 	@Autowired
 	private Configuration hadoopConfiguration;
@@ -116,9 +113,9 @@ public class PigCommands implements ApplicationContextAware, CommandMarker {
 	}
 
 	@CliCommand(value = { PREFIX + "cfg" }, help = "Configures Pig")
-	public void config(@CliOption(key = { "props" }, help = "Properties file location") String location,
-			@CliOption(key = { "jobTracker" }, mandatory = false, help = "Job tracker") String jobTracker,
-			@CliOption(key = { "execType" }, mandatory = false, help = "Execution type") ExecType execType,
+	public String config(@CliOption(key = { "props" }, mandatory = false, help = "Properties file location") String location, 
+			@CliOption(key = { "jobTracker" }, mandatory = false, help = "Job tracker") String jobTracker, 
+			@CliOption(key = { "execType" }, mandatory = false, help = "Execution type") ExecType execType, 
 			@CliOption(key = { "jobName" }, mandatory = false, help = "Job name") String jobName, 
 			@CliOption(key = { "jobPriority" }, mandatory = false, help = "Job priority") String jobPriority, 
 			@CliOption(key = { "validateEachStatement" }, mandatory = false, help = "Validation of each statement") Boolean validateEachStatement)
@@ -130,9 +127,10 @@ public class PigCommands implements ApplicationContextAware, CommandMarker {
 		this.validateEachStatement = validateEachStatement;
 		this.execType = execType;
 		this.propertiesLocation = location;
+
+		return info();
 	}
 
-	@CliCommand(value = { PREFIX + "info" }, help = "Returns basic info about the Pig configuration")
 	public String info() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Pig [");
@@ -152,13 +150,20 @@ public class PigCommands implements ApplicationContextAware, CommandMarker {
 
 	@CliCommand(value = { PREFIX + "script" }, help = "Executes a Pig script")
 	public String script(@CliOption(key = { "", "location" }, mandatory = true, help = "Script location") String location) {
-		if(location.startsWith("/")){
-			location = "file://"+ location;
-		}
 		Resource resource = resourceResolver.getResource(location);
-		if(!resource.exists()){
-			LOG.severe("No resource found at " + location);
+
+		if (!resource.exists()) {
+			return "No resolve resource " + location;
 		}
+
+		String uri = location;
+
+		try {
+			uri = resource.getURI().toString();
+		} catch (IOException ex) {
+			// ignore - we'll use location
+		}
+
 		PigServer pig = null;
 		try {
 			// for each run, start a new Pig instance
@@ -185,13 +190,12 @@ public class PigCommands implements ApplicationContextAware, CommandMarker {
 				sb.append(" ;Cause=");
 				sb.append(exception.getMessage());
 			}
-			return sb.toString();
-		} catch (Throwable t) {
-			LOG.severe("Run pig script failed. Failed message:" + t.getMessage());
+			return "Script [" + uri + "] executed succesfully. Returned status " + sb.toString();
+		} catch (Exception ex) {
+			return "Script [" + uri + "] failed - " + ex;
 		} finally {
 			if (pig != null)
 				pig.shutdown();
 		}
-		return "";
 	}
 }

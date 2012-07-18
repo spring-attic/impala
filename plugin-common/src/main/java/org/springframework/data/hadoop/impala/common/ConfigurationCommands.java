@@ -15,8 +15,6 @@
  */
 package org.springframework.data.hadoop.impala.common;
 
-import java.util.logging.Logger;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.mapreduce.JobSubmissionFiles;
@@ -55,7 +53,6 @@ public class ConfigurationCommands implements ApplicationEventPublisherAware, Co
 		}
 	}
 
-	private static Logger log = Logger.getLogger(ConfigurationCommands.class.getName());
 	private static final String PREFIX = "cfg ";
 
 	@Autowired

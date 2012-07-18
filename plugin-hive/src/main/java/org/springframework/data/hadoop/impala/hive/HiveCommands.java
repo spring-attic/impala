@@ -15,16 +15,14 @@
  */
 package org.springframework.data.hadoop.impala.hive;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
@@ -34,7 +32,6 @@ import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
@@ -46,11 +43,6 @@ import org.springframework.util.StringUtils;
 public class HiveCommands implements ApplicationContextAware, CommandMarker {
 
 	private static final String PREFIX = "hive ";
-
-	private final Logger LOG = Logger.getLogger(getClass().getName());
-	
-	@Autowired
-	private Configuration hadoopConfiguration;
 
 	private String host = "localhost";
 	private Integer port = 10000;
@@ -76,8 +68,7 @@ public class HiveCommands implements ApplicationContextAware, CommandMarker {
 	}
 
 
-	@CliCommand(value = { PREFIX + "info" }, help = "Returns basic info about the Hive configuration")
-	public String info() {
+	private String info() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Hive [");
 		String hiveVersion = HiveConf.class.getPackage().getImplementationVersion();
@@ -93,7 +84,7 @@ public class HiveCommands implements ApplicationContextAware, CommandMarker {
 	}
 
 	@CliCommand(value = { PREFIX + "cfg" }, help = "Configures Hive")
-	public void config(@CliOption(key = { "host" }, mandatory = true, help = "Server host") String host, 
+	public String config(@CliOption(key = { "host" }, mandatory = false, help = "Server host") String host,
 			@CliOption(key = { "port" }, mandatory = true, help = "Server port") Integer port, 
 			@CliOption(key = { "timeout" }, mandatory = false, help = "Connection Timeout") Long timeout)
 			throws Exception {
@@ -107,16 +98,24 @@ public class HiveCommands implements ApplicationContextAware, CommandMarker {
 		if (timeout != null) {
 			this.timeout = timeout;
 		}
+
+		return info();
 	}
 
 	@CliCommand(value = { PREFIX + "script" }, help = "Executes a Hive script")
-	public void script(@CliOption(key = { "", "location" }, mandatory = true, help = "Script location") String location){
-		if (location.startsWith("/")) {
-			location = "file://" + location;
-		}
+	public String script(@CliOption(key = { "", "location" }, mandatory = true, help = "Script location") String location) {
+
 		Resource resource = resourceResolver.getResource(location);
 		if (!resource.exists()) {
-			LOG.severe("No resource found at " + location);
+			return "No resource found at " + location;
+		}
+
+		String uri = location;
+
+		try {
+			uri = resource.getURI().toString();
+		} catch (IOException ex) {
+			// ignore - we'll use location
 		}
 
 		try {
@@ -126,10 +125,12 @@ public class HiveCommands implements ApplicationContextAware, CommandMarker {
 			hiveClientFactory.setScripts(Collections.singleton(resource));
 			hiveClientFactory.afterPropertiesSet();
 			hiveClientFactory.start();
-		} catch (Throwable t) {
-			LOG.severe("Run hive script failed. Failed message:" + t.getMessage());
+		} catch (Exception ex) {
+			return "Script [" + uri + "] failed - " + ex;
 		} finally {
 			hiveClientFactory.destroy();
 		}
+
+		return "Script [" + uri + "] executed succesfully";
 	}
 }
