@@ -122,7 +122,7 @@ public class PigCommands implements CommandMarker {
 		this.jobPriority = jobPriority;
 		this.validateEachStatement = validateEachStatement;
 		this.execType = execType;
-		this.propertiesLocation = location;
+		this.propertiesLocation = fixLocation(location);
 
 		return info();
 	}
@@ -151,7 +151,7 @@ public class PigCommands implements CommandMarker {
 
 	@CliCommand(value = { PREFIX + "script" }, help = "Executes a Pig script")
 	public String script(@CliOption(key = { "", "location" }, mandatory = true, help = "Script location") String location) {
-		Resource resource = resourceResolver.getResource(location);
+		Resource resource = resourceResolver.getResource(fixLocation(location));
 
 		if (!resource.exists()) {
 			return "Cannot resolve " + location;
@@ -198,5 +198,12 @@ public class PigCommands implements CommandMarker {
 			if (pig != null)
 				pig.shutdown();
 		}
+	}
+
+	private static String fixLocation(String location) {
+		if (StringUtils.hasText(location) && !location.contains(":")) {
+			return "file:" + location;
+		}
+		return location;
 	}
 }

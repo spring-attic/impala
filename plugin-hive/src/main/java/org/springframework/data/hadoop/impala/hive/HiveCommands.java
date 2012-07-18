@@ -99,7 +99,7 @@ public class HiveCommands implements CommandMarker {
 	@CliCommand(value = { PREFIX + "script" }, help = "Executes a Hive script")
 	public String script(@CliOption(key = { "", "location" }, mandatory = true, help = "Script location") String location) {
 
-		Resource resource = resourceResolver.getResource(location);
+		Resource resource = resourceResolver.getResource(fixLocation(location));
 		if (!resource.exists()) {
 			return "No resource found at " + location;
 		}
@@ -126,5 +126,12 @@ public class HiveCommands implements CommandMarker {
 		}
 
 		return "Script [" + uri + "] executed succesfully";
+	}
+
+	private static String fixLocation(String location) {
+		if (StringUtils.hasText(location) && !location.contains(":")) {
+			return "file:" + location;
+		}
+		return location;
 	}
 }
