@@ -60,9 +60,11 @@ public class ConfigurationCommands implements ApplicationEventPublisherAware, Co
 	private ApplicationEventPublisher applicationEventPublisher;
 
 	@CliCommand(value = { PREFIX + "load" }, help = "Loads the Hadoop configuration from the given resource")
-	public void loadConfiguration(@CliOption(key = { "", "location" }, mandatory = true, help = "Configuration location (can be a URL)") String location) {
+	public String loadConfiguration(@CliOption(key = { "", "location" }, mandatory = true, help = "Configuration location (can be a URL)") String location) {
 		hadoopConfiguration.addResource(location);
 		hadoopConfiguration.size();
+
+		return listProps();
 	}
 
 	@CliCommand(value = { PREFIX + "props set" }, help = "Sets the value for the given Hadoop property - <name=value>")
