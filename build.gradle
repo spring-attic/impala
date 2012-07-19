@@ -31,7 +31,7 @@ allprojects {
 
 configure(subprojects) { subproject ->
     jar {
-        manifest.attributes['Implementation-Title'] = subproject.name
+        manifest.attributes['Implementation-Title'] = rootProject.name + " " + subproject.name
         manifest.attributes['Implementation-Version'] = subproject.version
 
         from("${rootProject.projectDir}/docs/info") {
@@ -185,7 +185,7 @@ configure(rootProject) {
         }
 
         subprojects.each { subproject ->
-            into ("${baseDir}/libs") {
+            into ("${baseDir}/dist") {
                 from subproject.jar
                 if (subproject.tasks.findByPath('sourcesJar')) {
                     from subproject.sourcesJar
@@ -227,6 +227,46 @@ configure(rootProject) {
         }
     }
 
+    apply plugin: 'application'
+    mainClassName = "org.springframework.shell.Bootstrap"
+
+    startScripts {
+        classpath = files("foobarbaz")
+        doLast {
+            def text = unixScript.getText("utf-8")
+            def changed = text.replaceAll("foobarbaz", java.util.regex.Matcher.quoteReplacement(':$APP_HOME/lib/*'))
+            unixScript.write(changed)
+            
+            def winText = windowsScript.getText("utf-8")
+            def changedWin = winText.replaceAll("foobarbaz", java.util.regex.Matcher.quoteReplacement(';%APP_HOME%\\lib\\*'))
+            windowsScript.write(changedWin)
+        }
+    }
+
+    configurations { dist }
+
+    dependencies {
+      dist subprojects
+    }
+
+    applicationDistribution.with {
+        into("lib") {
+            from file('plugin-common/src/main/resources/log4j.properties')
+            from configurations.dist
+        } 
+    }
+
+    task runtimeZip(type: Zip, dependsOn: [installApp]) {
+        group = 'Distribution'
+        classifier = 'runtime'
+        description = "Builds -${classifier} archive, bundling the project as a JVM application with libs and OS specific scripts."
+
+        ext.baseDir = "${project.name}-${project.version}";
+
+        from("${project.buildDir}/install/") {
+        }
+    }
+
     artifacts {
         archives docsZip
         archives distroZip
@@ -236,37 +276,6 @@ configure(rootProject) {
         description = 'Generates gradlew[.bat] scripts'
         gradleVersion = '1.0'
     }
-}
-
-apply plugin: 'application'
-
-mainClassName = "org.springframework.shell.Bootstrap"
-startScripts {
-    classpath = files("foobarbaz")
-    doLast {
-        def text = unixScript.getText("utf-8")
-        def changed = text.replaceAll("foobarbaz", java.util.regex.Matcher.quoteReplacement(':$APP_HOME/lib/*'))
-        unixScript.write(changed)
-        
-        def winText = windowsScript.getText("utf-8")
-        def changedWin = winText.replaceAll("foobarbaz", java.util.regex.Matcher.quoteReplacement(';%APP_HOME%\\lib\\*'))
-        windowsScript.write(changedWin)
-    }
-}
-
-task allDeps { dependsOn { allprojects.tasks.dependencies } }
-
-configurations { dist }
-
-dependencies {
-  dist subprojects
-}
-
-applicationDistribution.with {
-    into("lib") {
-        from file('plugin-common/src/main/resources/log4j.properties')
-        from configurations.dist
-    } 
 }
 
 defaultTasks 'build'

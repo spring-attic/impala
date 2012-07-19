@@ -1,5 +1,5 @@
 IMPALA
-------------------
+------
 http://github.com/SpringSource/impala
 
 1. INTRODUCTION
