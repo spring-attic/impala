@@ -270,6 +270,7 @@ configure(rootProject) {
     artifacts {
         archives docsZip
         archives distroZip
+        archives runtimeZip
     }
 
     task wrapper(type: Wrapper) {
