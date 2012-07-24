@@ -16,22 +16,24 @@
 package org.springframework.data.hadoop.impala.hive;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
 import org.apache.hadoop.hive.conf.HiveConf;
+import org.apache.hadoop.hive.service.HiveClient;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.data.hadoop.hive.HiveClientFactoryBean;
+import org.springframework.data.hadoop.hive.HiveScriptRunner;
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
+import org.springframework.shell.support.util.StringUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 /**
  * Provider of Hive commands.
@@ -112,20 +114,23 @@ public class HiveCommands implements CommandMarker {
 			// ignore - we'll use location
 		}
 
+		StringBuilder sb = new StringBuilder();
 		try {
 			// for each run, start a new Hive instance
 			init();
 
-			hiveClientFactory.setScripts(Collections.singleton(resource));
 			hiveClientFactory.afterPropertiesSet();
 			hiveClientFactory.start();
+			HiveClient client = hiveClientFactory.getObject();
+			List<String> results = HiveScriptRunner.run(client, resource);
+			sb.append(StringUtils.collectionToDelimitedString(results, StringUtils.LINE_SEPARATOR));
 		} catch (Exception ex) {
 			return "Script [" + uri + "] failed - " + ex;
 		} finally {
 			hiveClientFactory.destroy();
 		}
 
-		return "Script [" + uri + "] executed succesfully";
+		return sb.append(StringUtils.LINE_SEPARATOR).append("Script [" + uri + "] executed succesfully").toString();
 	}
 
 	private static String fixLocation(String location) {
