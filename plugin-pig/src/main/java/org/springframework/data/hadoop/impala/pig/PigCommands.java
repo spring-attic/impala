@@ -160,7 +160,7 @@ public class PigCommands implements CommandMarker {
 		String uri = location;
 
 		try {
-			uri = resource.getURI().toString();
+			uri = resource.getFile().getAbsolutePath();
 		} catch (IOException ex) {
 			// ignore - we'll use location
 		}
