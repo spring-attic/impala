@@ -106,6 +106,10 @@ project('plugin-pig') {
 	}
 }
 
+project('plugin-r') {
+	description = 'Impala R plugin'
+}
+
 configure(rootProject) {
     description = 'Impala'
 
