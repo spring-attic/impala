@@ -108,6 +108,22 @@ public class FsShellCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 	
+	@CliCommand(value = PREFIX + "chmod", help = "change file permissions")
+	public void chmod(
+			@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive,
+			@CliOption(key = { "mode" }, mandatory = true, help = "permission mode") final String mode,
+			@CliOption(key = { "" }, mandatory = true, help = "file name to be changed permissions") final String path) {
+		List<String> argv = new ArrayList<String>();
+		argv.add("-chmod");
+		if (recursive) {
+			argv.add("-R");
+		}
+		argv.add(mode);
+		String[] fileNames = path.split(" ");
+		argv.addAll(Arrays.asList(fileNames));
+		run(argv.toArray(new String[0]));
+	}
+	
 	@CliCommand(value = PREFIX + "copyFromLocal", help = "copy local files to HDFS")
 	public void copyFromLocal(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
