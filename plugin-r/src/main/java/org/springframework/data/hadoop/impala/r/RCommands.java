@@ -58,7 +58,7 @@ public class RCommands implements CommandMarker {
 			if (f.exists() && f.isDirectory()) {
 				File[] listFiles = f.listFiles();
 				if (listFiles != null && listFiles.length > 0) {
-					home = listFiles[0].getAbsolutePath();
+					home = listFiles[0].getAbsolutePath() + "\\";
 				}
 			}
 		}
@@ -102,7 +102,13 @@ public class RCommands implements CommandMarker {
 					home += File.separator;
 				}
 				this.home = home;
-				cmd = home + BIN + ".exe";
+				String os = System.getProperty("os.name").toLowerCase();
+				if (os.contains("win")) {
+					cmd = home + BIN + ".exe";
+				}
+				else{
+					cmd = home + BIN;
+				}
 			}
 			else {
 				return "Cannot find path [" + home + "]";
