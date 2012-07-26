@@ -73,7 +73,7 @@ public class RCommands implements CommandMarker {
 		}
 		else {
 			// else linux/unix
-			home = "/usr/lib/";
+			home = "/usr/bin/";
 		}
 
 		cmd = home + BIN;
