@@ -15,8 +15,11 @@
  */
 package org.springframework.data.hadoop.impala.r;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -164,8 +167,18 @@ public class RCommands implements CommandMarker {
 
 		try {
 			process = new ProcessBuilder(cmds).directory(wkdir).redirectErrorStream(true).start();
-			process.waitFor();
-			return "R script executed";
+			BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			while(true){
+				String line = br.readLine();
+				if(line != null){
+					System.out.println(line);
+				}
+				else{
+					break;
+				}
+			}
+			int code = process.waitFor();
+			return "R script executed with exit code:" + code;
 		} catch (Exception ex) {
 			return "R script execution failed - " + ex;
 		}
