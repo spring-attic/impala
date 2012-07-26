@@ -13,7 +13,6 @@ dependencies {
 		exclude module: "hive"
 		exclude module: "antlr"
 	}
-
 	compile ("org.springframework.data.hadoop.impala:plugin-mapreduce:$impalaVersion") {
 		exclude module: "hbase"
 		exclude module: "hive"
@@ -25,6 +24,11 @@ dependencies {
 		exclude module: "antlr"
 	}
 	compile ("org.springframework.data.hadoop.impala:plugin-pig:$impalaVersion") {
+		exclude module: "hbase"
+		exclude module: "hive"
+		exclude module: "antlr"
+	}
+	compile ("org.springframework.data.hadoop.impala:plugin-r:$impalaVersion") {
 		exclude module: "hbase"
 		exclude module: "hive"
 		exclude module: "antlr"
