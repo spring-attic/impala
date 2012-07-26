@@ -18,12 +18,12 @@ package org.springframework.data.hadoop.impala.r;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -77,9 +77,6 @@ public class RCommands implements CommandMarker {
 		}
 
 		cmd = home + BIN;
-		if (os.contains("win")) {
-			cmd = home + BIN + ".exe";
-		}
 	}
 
 	private String info() {
@@ -108,13 +105,7 @@ public class RCommands implements CommandMarker {
 					home += File.separator;
 				}
 				this.home = home;
-				String os = System.getProperty("os.name").toLowerCase();
-				if (os.contains("win")) {
-					cmd = home + BIN + ".exe";
-				}
-				else{
-					cmd = home + BIN;
-				}
+				cmd = home + BIN;
 			}
 			else {
 				return "Cannot find path [" + home + "]";
@@ -136,7 +127,7 @@ public class RCommands implements CommandMarker {
 
 	@CliCommand(value = { PREFIX + "script" }, help = "Executes a R script")
 	public String script(@CliOption(key = { "", "location" }, mandatory = true, help = "Script location") String location,
- @CliOption(key = { "args" }, mandatory = false, help = "Script arguments") String args) {
+						 @CliOption(key = { "args" }, mandatory = false, help = "Script arguments") String args) {
 
 		if (!new File(cmd).exists()) {
 			return "Cannot find R command [" + cmd + "]";
@@ -165,22 +156,20 @@ public class RCommands implements CommandMarker {
 			cmds.addAll(Arrays.asList(StringUtils.tokenizeToStringArray(args, " ")));
 		}
 
+		BufferedReader output = null;
 		try {
 			process = new ProcessBuilder(cmds).directory(wkdir).redirectErrorStream(true).start();
-			BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			while(true){
-				String line = br.readLine();
-				if(line != null){
-					System.out.println(line);
-				}
-				else{
-					break;
-				}
+			output = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			String line;
+			while ((line = output.readLine()) != null) {
+				System.out.println(line);
 			}
 			int code = process.waitFor();
-			return "R script executed with exit code:" + code;
+			return "R script executed with exit code - " + code;
 		} catch (Exception ex) {
 			return "R script execution failed - " + ex;
+		} finally {
+			IOUtils.closeQuietly(output);
 		}
 	}
 
