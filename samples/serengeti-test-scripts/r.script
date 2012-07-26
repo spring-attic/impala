@@ -1,0 +1,3 @@
+r cfg --home /usr/bin
+r script --location /tmp/impala/data.r
+

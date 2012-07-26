@@ -19,3 +19,6 @@ serengeti --cmdfile /tmp/impala/hive.script
 echo "************************end run Hive test*****************"
 
 
+echo "************************start run R test*****************"
+serengeti --cmdfile /tmp/impala/r.script
+echo "************************end run R test*****************"
