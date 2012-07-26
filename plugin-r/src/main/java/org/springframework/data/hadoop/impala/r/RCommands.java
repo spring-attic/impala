@@ -74,6 +74,9 @@ public class RCommands implements CommandMarker {
 		}
 
 		cmd = home + BIN;
+		if (os.contains("win")) {
+			cmd = home + BIN + ".exe";
+		}
 	}
 
 	private String info() {
