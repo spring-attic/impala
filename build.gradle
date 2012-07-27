@@ -40,6 +40,9 @@ configure(subprojects) { subproject ->
             into "META-INF"
             expand(copyright: new Date().format('yyyy'), version: project.version)
         }
+        
+        baseName = "spring-impala"
+        appendix = subproject.name
     }
 
     javadoc {
@@ -50,11 +53,15 @@ configure(subprojects) { subproject ->
     }
 
     task sourcesJar(type: Jar, dependsOn:classes) {
+        baseName = "spring-impala"
+        appendix = subproject.name
         classifier = 'sources'
         from sourceSets.main.allJava
     }
 
     task javadocJar(type: Jar) {
+        baseName = "spring-impala"
+        appendix = subproject.name
         classifier = 'javadoc'
         from javadoc
     }
@@ -66,7 +73,7 @@ configure(subprojects) { subproject ->
 }
 
 project('plugin-common') {
-    description = 'Impala Common plugin'
+    description = 'Impala Common plugin'    
 }
 
 project('plugin-hdfs') {
@@ -103,6 +110,9 @@ project('plugin-pig') {
 		compile project(':plugin-common')
 		compile("org.apache.pig:pig:$pigVersion")
 		compile "org.antlr:antlr-runtime:3.4"
+	}
+	jar {	
+		appendix = "plugin-pig"
 	}
 }
 
