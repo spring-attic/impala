@@ -23,6 +23,7 @@ allprojects {
        	compile "org.springframework.shell:spring-shell:$springShellVersion"
 
 		testCompile "junit:junit:$junitVersion"
+		testCompile "org.springframework:spring-test:$springVersion"
 	}
 	
     sourceCompatibility = 1.6

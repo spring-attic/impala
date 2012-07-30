@@ -199,21 +199,6 @@ public class FsShellCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = PREFIX + "moveToLocal", help = "move HDFS files to local")
-	public void moveToLocal(
-			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
-			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest,
-			@CliOption(key = { "crc" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether copy CRC") final boolean crc) {
-		List<String> argv = new ArrayList<String>();
-		argv.add("-moveToLocal");
-		if(crc){
-			argv.add("-crc");
-		}
-		argv.add(source);
-		argv.add(dest);
-		run(argv.toArray(new String[0]));
-	}
-	
 	
 	@CliCommand(value = PREFIX + "count", help = "Count the number of directories, files, bytes, quota, and remaining quota")
 	public void count(
@@ -370,7 +355,11 @@ public class FsShellCommands extends ConfigurationAware {
 		try {
 			shell.run(argv);
 		} catch (Throwable t) {
-			LOG.severe("run HDFS shell failed. " + t.getMessage());
+			LOG.severe("run HDFS shell failed. Message is: " + t.getMessage());
+			if(t.getCause() != null){
+				LOG.severe("root error message is:" + t.getCause().getMessage());
+			}
+			t.printStackTrace();
 		}
 	}
 

@@ -15,26 +15,42 @@
  */
 package org.springframework.data.hadoop.impala.mapreduce;
 
-import static org.junit.Assert.*;
-
 import java.io.File;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import junit.framework.Assert;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FsShell;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author Jarred Li
  *
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration
 public class MapReduceCommandsTest {
 
+	@Autowired
+	MapReduceCommands mrCmds;
+	
+	private String hadoopExampleJarFile = "src/test/resources/hadoop-examples-1.0.3.jar";
+	
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
+		mrCmds.init();
 	}
 
 	/**
@@ -42,15 +58,91 @@ public class MapReduceCommandsTest {
 	 */
 	@After
 	public void tearDown() throws Exception {
+		mrCmds = null;
 	}
 
 	/**
-	 * Test method for {@link org.springframework.data.hadoop.impala.mapreduce.MapReduceCommands#writeHadoopConfiguration(java.io.File, org.apache.hadoop.conf.Configuration)}.
+	 * Test method for {@link org.springframework.data.hadoop.impala.mapreduce.MapReduceCommands#init()}.
 	 */
 	@Test
-	public void testWriteHadoopConfiguration() {
-		MapReduceCommands cmd = new MapReduceCommands();
-		cmd.writeHadoopConfiguration(new File("/tmp/impala"), new Configuration());
+	public void testInit() {
+		mrCmds.init();
 	}
+
+	/**
+	 * Test method for {@link org.springframework.data.hadoop.impala.mapreduce.MapReduceCommands#submit(java.lang.String)}.
+	 * @throws Exception 
+	 */
+	@Test
+	public void testSubmit() throws Exception {
+		Configuration jobConfig = new Configuration(false);
+
+		Configuration hadoopConfig = mrCmds.getHadoopConfiguration();
+		
+		FsShell shell = new FsShell(hadoopConfig);
+		List<String> argv = new ArrayList<String>();
+		argv.add("-rmr");
+		argv.add("/tmp/wc-input");
+		shell.run(argv.toArray(new String[0]));
+		
+		argv = new ArrayList<String>();
+		argv.add("-put");
+		File f = new File("src/test/resources/wordcount-conf.xml");		
+		argv.add(f.getAbsolutePath());
+		argv.add("/tmp/wc-input/");
+		shell.run(argv.toArray(new String[0]));
+		
+		argv = new ArrayList<String>();
+		argv.add("-rmr");
+		argv.add("/tmp/wc-output");
+		shell.run(argv.toArray(new String[0]));
+		
+		String hadoopFsName = hadoopConfig.get("fs.default.name");
+		String hadoopJT = hadoopConfig.get("mapred.job.tracker");
+		File jarFile = new File(hadoopExampleJarFile);
+		
+		jobConfig.set("fs.default.name", hadoopFsName);
+		jobConfig.set("mapred.job.tracker", hadoopJT);
+		jobConfig.set("mapred.jar", jarFile.getAbsolutePath());
+		jobConfig.set("mapred.input.dir", "/tmp/wc-input");
+		jobConfig.set("mapred.output.dir", "/tmp/wc-output");
+		jobConfig.set("mapreduce.map.class", "org.apache.hadoop.examples.WordCount.TokenizerMapper");
+		jobConfig.set("mapreduce.reduce.class", "org.apache.hadoop.examples.WordCount.IntSumReducer");
+		
+		String tmpFile = "/tmp/impala-test-wordcount-conf.xml";
+		try {
+			jobConfig.writeXml(new FileOutputStream(new File(tmpFile)));
+		} catch (Exception e) {
+			Assert.fail("fail to write temp MR configuration file");
+		}
+		
+		mrCmds.submit(tmpFile);
+	}
+
+	//@Test
+	public void testJar() throws Exception{
+		Configuration hadoopConfig = mrCmds.getHadoopConfiguration();
+		FsShell shell = new FsShell(hadoopConfig);
+		List<String> argv = new ArrayList<String>();
+		argv.add("-rmr");
+		argv.add("/tmp/wc-input");
+		shell.run(argv.toArray(new String[0]));
+		
+		argv = new ArrayList<String>();
+		argv.add("-put");
+		File f = new File("src/test/resources/wordcount-conf.xml");		
+		argv.add(f.getAbsolutePath());
+		argv.add("/tmp/wc-input/");
+		shell.run(argv.toArray(new String[0]));
+		
+		argv = new ArrayList<String>();
+		argv.add("-rmr");
+		argv.add("/tmp/wc-output");
+		shell.run(argv.toArray(new String[0]));
+		
+		File jarFile = new File(hadoopExampleJarFile);		
+		mrCmds.jar(jarFile.getAbsolutePath(), "org.apache.hadoop.examples.WordCount","/tmp/wc-input /tmp/wc-output");
+	}
+	
 
 }
