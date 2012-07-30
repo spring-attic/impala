@@ -26,6 +26,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FsShell;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author Jarred Li
  *
  */
+@Ignore("Depends Hadoop environment")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class MapReduceCommandsTest {
@@ -119,7 +121,7 @@ public class MapReduceCommandsTest {
 		mrCmds.submit(tmpFile);
 	}
 
-	//@Test
+	@Test
 	public void testJar() throws Exception{
 		Configuration hadoopConfig = mrCmds.getHadoopConfiguration();
 		FsShell shell = new FsShell(hadoopConfig);
