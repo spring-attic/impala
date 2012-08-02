@@ -289,6 +289,19 @@ public class FsShellCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 	
+	@CliCommand(value = PREFIX + "rmr", help = "remove files in HDFS with recursive")
+	public void rmr(
+			@CliOption(key = { "" }, mandatory = false, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "directory to be listed") final String path,
+			@CliOption(key = { "skipTrash" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether skip trash") final boolean skipTrash){
+		List<String> argv = new ArrayList<String>();
+		argv.add("-rmr");
+		if(skipTrash){
+			argv.add("-skipTrash");
+		}
+		argv.add(path);
+		run(argv.toArray(new String[0]));
+	}
+	
 	
 	@CliCommand(value = PREFIX + "setrep", help = "set replication number")
 	public void setrep(

@@ -202,7 +202,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		try {
 			runJar(jarFileName, mainClassName, args);
 		} catch (ExitTrappedException e) {
-			LOG.info("The MR job call System.exit. This is prevented.");
+			//LOG.info("The MR job call System.exit. This is prevented.");
 		} finally {
 			securityUtil.enableSystemExitCall();
 		}
