@@ -217,6 +217,10 @@ public class MapReduceCommands extends ConfigurationAware {
 	public void runJar(final String jarFileName, final String mainClassName, final String args) throws ExitTrappedException {
 		File file = new File(jarFileName);
 		File tmpDir = new File(new Configuration().get("hadoop.tmp.dir"));
+		String os = System.getProperty("os.name").toLowerCase();
+		if (os.contains("win")) {
+			tmpDir = new File(System.getProperty("java.io.tmpdir"),"impala");
+		}
 		tmpDir.mkdirs();
 		if (!tmpDir.isDirectory()) {
 			LOG.severe("Mkdirs failed to create " + tmpDir);
