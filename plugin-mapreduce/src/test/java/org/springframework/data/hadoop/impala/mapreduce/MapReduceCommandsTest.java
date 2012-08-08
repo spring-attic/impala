@@ -26,7 +26,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FsShell;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author Jarred Li
  *
  */
-@Ignore("Depends Hadoop environment")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class MapReduceCommandsTest {
@@ -127,23 +125,23 @@ public class MapReduceCommandsTest {
 		FsShell shell = new FsShell(hadoopConfig);
 		List<String> argv = new ArrayList<String>();
 		argv.add("-rmr");
-		argv.add("/tmp/wc-input");
+		argv.add("/tmp/wc-input2");
 		shell.run(argv.toArray(new String[0]));
 		
 		argv = new ArrayList<String>();
 		argv.add("-put");
 		File f = new File("src/test/resources/wordcount-conf.xml");		
 		argv.add(f.getAbsolutePath());
-		argv.add("/tmp/wc-input/");
+		argv.add("/tmp/wc-input2/");
 		shell.run(argv.toArray(new String[0]));
 		
 		argv = new ArrayList<String>();
 		argv.add("-rmr");
-		argv.add("/tmp/wc-output");
+		argv.add("/tmp/wc-output2");
 		shell.run(argv.toArray(new String[0]));
 		
 		File jarFile = new File(hadoopExampleJarFile);		
-		mrCmds.jar(jarFile.getAbsolutePath(), "org.apache.hadoop.examples.WordCount","/tmp/wc-input /tmp/wc-output");
+		mrCmds.jar(jarFile.getAbsolutePath(), "org.apache.hadoop.examples.WordCount","/tmp/wc-input2 /tmp/wc-output2");
 	}
 	
 

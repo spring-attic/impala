@@ -19,7 +19,6 @@ import java.io.File;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author Jarred Li
  *
  */
-@Ignore("Depends Hadoop environment")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class FsShellCommandsTest {
@@ -42,7 +40,9 @@ public class FsShellCommandsTest {
 	
 	private String tmpFile = "/tmp/test.properties";
 	
-	private String newTmpFile = "/tmp/test.properties";
+	private String localTmpFile = "/tmp/local-test.properties";
+	
+	private String newTmpFile = "/tmp/new-test.properties";
 	
 	/**
 	 * @throws java.lang.Exception
@@ -70,12 +70,12 @@ public class FsShellCommandsTest {
 	 */
 	@Test
 	public void testLs() {
-		fsCmd.ls("/", false);
+		fsCmd.ls("/tmp", false);
 	}
 	
 	@Test
 	public void testLs_withRecursion() {
-		fsCmd.ls("/", true);
+		fsCmd.ls("/tmp", true);
 	}
 
 	/**
@@ -92,6 +92,7 @@ public class FsShellCommandsTest {
 	@Test
 	public void testChgrp() {
 		fsCmd.chgrp(false, "hadoop", tmpFile);
+		fsCmd.ls(tmpFile, false);
 	}
 
 	/**
@@ -100,6 +101,7 @@ public class FsShellCommandsTest {
 	@Test
 	public void testChown() {
 		fsCmd.chown(false, "hadoop", tmpFile);
+		fsCmd.ls(tmpFile, false);
 	}
 
 	/**
@@ -107,7 +109,8 @@ public class FsShellCommandsTest {
 	 */
 	@Test
 	public void testChmod() {
-		fsCmd.chmod(false, "755", tmpFile);
+		fsCmd.chmod(false, "777", tmpFile);
+		fsCmd.ls(tmpFile, false);
 	}
 
 	/**
@@ -119,6 +122,7 @@ public class FsShellCommandsTest {
 		File f = new File(srcFile);
 		String fullPath = f.getAbsolutePath();
 		fsCmd.copyFromLocal(fullPath, tmpFile);
+		fsCmd.ls(tmpFile, false);
 	}
 
 	/**
@@ -130,6 +134,7 @@ public class FsShellCommandsTest {
 		File f = new File(srcFile);
 		String fullPath = f.getAbsolutePath();
 		fsCmd.put(fullPath, tmpFile);
+		fsCmd.ls(tmpFile, false);
 	}
 
 	/**
@@ -137,12 +142,12 @@ public class FsShellCommandsTest {
 	 */
 	@Test
 	public void testMoveFromLocal() {
-		File file = new File(tmpFile);
+		File file = new File(localTmpFile);
 		if(!file.exists()){
-			fsCmd.copyToLocal(tmpFile, tmpFile, true, false);
+			fsCmd.copyToLocal(tmpFile, localTmpFile, true, false);
 		}
-		fsCmd.rm(tmpFile, false, false);
-		fsCmd.moveFromLocal(tmpFile, tmpFile);
+		fsCmd.moveFromLocal(localTmpFile, tmpFile);
+		fsCmd.ls(tmpFile, false);
 	}
 
 	/**
@@ -150,7 +155,11 @@ public class FsShellCommandsTest {
 	 */
 	@Test
 	public void testCopyToLocal() {
-		fsCmd.copyToLocal(tmpFile, tmpFile, true, false);
+		File file = new File(localTmpFile);
+		if(file.exists()){
+			file.delete();
+		}
+		fsCmd.copyToLocal(tmpFile, localTmpFile, true, false);
 	}
 
 	/**
@@ -158,11 +167,11 @@ public class FsShellCommandsTest {
 	 */
 	@Test
 	public void testGet() {
-		File file = new File(tmpFile);
+		File file = new File(localTmpFile);
 		if(file.exists()){
 			file.delete();
 		}
-		fsCmd.get(tmpFile, tmpFile, true, false);
+		fsCmd.get(tmpFile, localTmpFile, true, false);
 	}
 
 	/**
@@ -179,6 +188,8 @@ public class FsShellCommandsTest {
 	@Test
 	public void testCp() {
 		fsCmd.cp(tmpFile, newTmpFile);
+		fsCmd.ls(tmpFile, false);
+		fsCmd.ls(newTmpFile, false);
 	}
 
 	/**
@@ -187,6 +198,8 @@ public class FsShellCommandsTest {
 	@Test
 	public void testMv() {
 		fsCmd.mv(tmpFile, newTmpFile);
+		fsCmd.ls(newTmpFile, false);
+		fsCmd.mv(newTmpFile, tmpFile);
 	}
 
 	/**
