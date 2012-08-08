@@ -66,6 +66,11 @@ public class MapReduceCommands extends ConfigurationAware {
 		if (jobClient == null) {
 			init();
 		}
+		String os = System.getProperty("os.name").toLowerCase();
+		if (os.contains("win")) {
+			org.apache.hadoop.mapreduce.JobSubmissionFiles.JOB_DIR_PERMISSION.fromShort((short) 0700);
+		    org.apache.hadoop.mapreduce.JobSubmissionFiles.JOB_FILE_PERMISSION.fromShort((short) 0644);
+		}
 		return invocationContext;
 	}
 
@@ -351,3 +356,4 @@ public class MapReduceCommands extends ConfigurationAware {
 
 
 }
+
