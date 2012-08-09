@@ -15,14 +15,18 @@
  */
 package org.springframework.data.hadoop.impala.hdfs;
 
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FsShell;
 import org.springframework.data.hadoop.impala.common.ConfigurationAware;
+import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
@@ -339,6 +343,19 @@ public class FsShellCommands extends ConfigurationAware {
 		argv.add("-touchz");
 		argv.add(path);
 		run(argv.toArray(new String[0]));
+	}
+	
+	@CliAvailabilityIndicator({PREFIX + "ls", PREFIX + "cat", PREFIX + "chgrp", 
+		PREFIX + "chown", PREFIX + "chmod", PREFIX + "copyFromLocal", PREFIX + "put", PREFIX + "moveFromLocal",
+		PREFIX + "copyToLocal", PREFIX + "get", PREFIX + "count", PREFIX + "cp", PREFIX + "mv", 
+		PREFIX + "du", PREFIX + "expunge", PREFIX + "mkdir", PREFIX + "rm", 
+		PREFIX + "setrep", PREFIX + "tail", PREFIX + "text", PREFIX + "touchz"})
+	public boolean isCmdAvailable() {
+		String fs = getHadoopConfiguration().get("fs.default.name");
+		if(fs != null && fs.length() > 0){
+			return true;
+		}
+		return false;
 	}
 	
 	/**

@@ -37,6 +37,7 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.data.hadoop.pig.PigContextFactoryBean;
 import org.springframework.data.hadoop.pig.PigServerFactoryBean;
 import org.springframework.shell.core.CommandMarker;
+import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
@@ -198,6 +199,15 @@ public class PigCommands implements CommandMarker {
 			if (pig != null)
 				pig.shutdown();
 		}
+	}
+	
+	@CliAvailabilityIndicator({PREFIX + "script"})
+	public boolean isCmdAvailable() {
+		String jobTracker = hadoopConfiguration.get("mapred.job.tracker");
+		if(jobTracker != null && jobTracker.length() > 0){
+			return true;
+		}
+		return false;
 	}
 
 	private static String fixLocation(String location) {

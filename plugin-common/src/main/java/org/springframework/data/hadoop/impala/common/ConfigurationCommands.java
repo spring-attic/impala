@@ -15,6 +15,8 @@
  */
 package org.springframework.data.hadoop.impala.common;
 
+import java.net.URI;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.mapreduce.JobSubmissionFiles;
@@ -105,10 +107,20 @@ public class ConfigurationCommands implements ApplicationEventPublisherAware, Co
 		sb.append(VersionInfo.getVersion());
 		sb.append(" rev.");
 		sb.append(VersionInfo.getRevision());
-		sb.append("][fs=");
-		sb.append(FileSystem.getDefaultUri(hadoopConfiguration));
-		sb.append("][jt=");
-		sb.append(hadoopConfiguration.get("mapred.job.tracker"));
+		sb.append("]");
+		
+		sb.append("[fs=");		
+		String fs = hadoopConfiguration.get("fs.default.name");
+		if(fs != null && fs.length() > 0){
+			sb.append(fs);
+		}
+		sb.append("]");
+		
+		sb.append("[jt=");
+		String jt = hadoopConfiguration.get("mapred.job.tracker");
+		if(jt != null && jt.length() > 0){
+			sb.append(jt);
+		}		
 		sb.append("]");
 
 		// TODO: potentially add a check to see whether HDFS is running

@@ -10,8 +10,8 @@
 	<context:component-scan base-package="org.springframework.data.hadoop.impala.provider"/>
 	
 	<hdp:configuration>
-		fs.default.name=webhdfs://localhost:50070
-		mapred.job.tracker=localhost:9001
+		fs.default.name=
+		mapred.job.tracker=
 	</hdp:configuration>
 	
 	<context:component-scan base-package="org.springframework.data.hadoop.impala.common"/>

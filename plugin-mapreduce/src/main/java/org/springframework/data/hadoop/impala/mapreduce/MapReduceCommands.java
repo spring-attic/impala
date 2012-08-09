@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobClient;
@@ -40,6 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.hadoop.impala.common.ConfigurationAware;
 import org.springframework.data.hadoop.impala.common.util.SecurityUtil;
 import org.springframework.data.hadoop.impala.common.util.SecurityUtil.ExitTrappedException;
+import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.shell.event.ParseResult;
@@ -56,6 +59,8 @@ import org.springframework.stereotype.Component;
 public class MapReduceCommands extends ConfigurationAware {
 
 	private JobClient jobClient;
+	
+	private static final String PREFIX = "mr job ";
 	
 	@Autowired
 	private SecurityUtil securityUtil;
@@ -96,7 +101,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		return true;
 	}
 
-	@CliCommand(value = "mr job submit", help = "submit Map Reduce Jobs.")
+	@CliCommand(value = PREFIX + "submit", help = "submit Map Reduce Jobs.")
 	public void submit(@CliOption(key = { "jobfile" }, mandatory = true, help = "the configuration file for MR job") final String jobFile) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-submit");
@@ -104,7 +109,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 
-	@CliCommand(value = "mr job status", help = "query Map Reduce status.")
+	@CliCommand(value = PREFIX + "status", help = "query Map Reduce status.")
 	public void status(@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-status");
@@ -112,7 +117,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 
-	@CliCommand(value = "mr job counter", help = "print the counter value")
+	@CliCommand(value = PREFIX + "counter", help = "print the counter value")
 	public void counter(@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid, @CliOption(key = { "groupname" }, mandatory = true, help = "the job Id") final String groupName, @CliOption(key = { "countername" }, mandatory = true, help = "the job Id") final String counterName) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-counter");
@@ -122,7 +127,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 
-	@CliCommand(value = "mr job kill", help = "kill Map Reduce job.")
+	@CliCommand(value = PREFIX + "kill", help = "kill Map Reduce job.")
 	public void kill(@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-kill");
@@ -130,7 +135,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 
-	@CliCommand(value = "mr job events", help = "print the events' details received by jobtracker for the given range")
+	@CliCommand(value = PREFIX + "events", help = "print the events' details received by jobtracker for the given range")
 	public void events(@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid, @CliOption(key = { "from" }, mandatory = true, help = "from event number") final String from, @CliOption(key = { "number" }, mandatory = true, help = "total number of events") final String number) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-events");
@@ -140,7 +145,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 
-	@CliCommand(value = "mr job history", help = "print job details, failed and killed tip details")
+	@CliCommand(value = PREFIX + "history", help = "print job details, failed and killed tip details")
 	public void history(@CliOption(key = { "all" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "list all jobs") final boolean all, @CliOption(key = { "" }, mandatory = true, help = "job output directory") final String outputDir) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-history");
@@ -151,7 +156,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 
-	@CliCommand(value = "mr job list", help = "list MapReduce Jobs.")
+	@CliCommand(value = PREFIX + "list", help = "list MapReduce Jobs.")
 	public void list(@CliOption(key = { "all" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "list all jobs") final boolean all) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-list");
@@ -178,7 +183,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 
-	@CliCommand(value = "mr job set priority", help = "change the priority of the job.")
+	@CliCommand(value = PREFIX + "set priority", help = "change the priority of the job.")
 	public void setPriority(@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid, @CliOption(key = { "priority" }, mandatory = true, help = "the job priority") final JobPriority priority) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-set-priority");
@@ -211,6 +216,16 @@ public class MapReduceCommands extends ConfigurationAware {
 		} finally {
 			securityUtil.enableSystemExitCall();
 		}
+	}
+	
+	@CliAvailabilityIndicator({PREFIX + "submit", PREFIX + "status", PREFIX + "counter", PREFIX + "kill", PREFIX + "events", 
+		PREFIX + "history", PREFIX + "list", "mr task kill", "mr task fail", PREFIX + "set priority", "mr jar"})
+	public boolean isCmdAvailable() {
+		String jobTracker = getHadoopConfiguration().get("mapred.job.tracker");
+		if(jobTracker != null && jobTracker.length() > 0){
+			return true;
+		}
+		return false;
 	}
 
 	/**
