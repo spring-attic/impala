@@ -46,7 +46,7 @@ public class HiveCommands implements CommandMarker {
 
 	private static final String PREFIX = "hive ";
 
-	private String host = "localhost";
+	private String host = null;
 	private Integer port = 10000;
 	private Long timeout = TimeUnit.MINUTES.toMillis(2);
 

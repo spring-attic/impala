@@ -138,11 +138,23 @@ public class PigCommands implements CommandMarker {
 		}
 
 		sb.append((StringUtils.hasText(pigVersion) ? pigVersion : "unknown"));
-		sb.append("][fs=");
-		sb.append(FileSystem.getDefaultUri(hadoopConfiguration));
-		sb.append("][jt=");
-		sb.append((StringUtils.hasText(jobTracker) ? jobTracker : hadoopConfiguration.get("mapred.job.tracker")));
-		sb.append("][execType=");
+		sb.append("]");
+		
+		sb.append("[fs=");		
+		String fs = hadoopConfiguration.get("fs.default.name");
+		if(fs != null && fs.length() > 0){
+			sb.append(fs);
+		}
+		sb.append("]");
+		
+		sb.append("[jt=");
+		String jt = hadoopConfiguration.get("mapred.job.tracker");
+		if(jt != null && jt.length() > 0){
+			sb.append(jt);
+		}		
+		sb.append("]");
+		
+		sb.append("[execType=");
 		sb.append((execType != null ? execType.name() : ExecType.MAPREDUCE.name()));
 		sb.append("]");
 		// TODO: potentially add a check to see whether HDFS is running
