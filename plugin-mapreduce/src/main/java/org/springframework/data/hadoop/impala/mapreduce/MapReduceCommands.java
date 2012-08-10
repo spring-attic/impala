@@ -59,9 +59,9 @@ import org.springframework.stereotype.Component;
 public class MapReduceCommands extends ConfigurationAware {
 
 	private JobClient jobClient;
-	
+
 	private static final String PREFIX = "mr job ";
-	
+
 	@Autowired
 	private SecurityUtil securityUtil;
 
@@ -74,7 +74,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		String os = System.getProperty("os.name").toLowerCase();
 		if (os.contains("win")) {
 			org.apache.hadoop.mapreduce.JobSubmissionFiles.JOB_DIR_PERMISSION.fromShort((short) 0700);
-		    org.apache.hadoop.mapreduce.JobSubmissionFiles.JOB_FILE_PERMISSION.fromShort((short) 0644);
+			org.apache.hadoop.mapreduce.JobSubmissionFiles.JOB_FILE_PERMISSION.fromShort((short) 0644);
 		}
 		return invocationContext;
 	}
@@ -213,16 +213,19 @@ public class MapReduceCommands extends ConfigurationAware {
 			runJar(jarFileName, mainClassName, args);
 		} catch (ExitTrappedException e) {
 			//LOG.info("The MR job call System.exit. This is prevented.");
+		} catch (Throwable t) {
+			LOG.severe("run MR job failed. Failed Message:" + t.getMessage());
 		} finally {
 			securityUtil.enableSystemExitCall();
 		}
 	}
-	
-	@CliAvailabilityIndicator({PREFIX + "submit", PREFIX + "status", PREFIX + "counter", PREFIX + "kill", PREFIX + "events", 
-		PREFIX + "history", PREFIX + "list", "mr task kill", "mr task fail", PREFIX + "set priority", "mr jar"})
+
+	@CliAvailabilityIndicator({ PREFIX + "submit", PREFIX + "status", PREFIX + "counter", PREFIX + "kill",
+			PREFIX + "events", PREFIX + "history", PREFIX + "list", "mr task kill", "mr task fail",
+			PREFIX + "set priority", "mr jar" })
 	public boolean isCmdAvailable() {
 		String jobTracker = getHadoopConfiguration().get("mapred.job.tracker");
-		if(jobTracker != null && jobTracker.length() > 0){
+		if (jobTracker != null && jobTracker.length() > 0) {
 			return true;
 		}
 		return false;
@@ -232,14 +235,14 @@ public class MapReduceCommands extends ConfigurationAware {
 	 * @param jarFileName
 	 * @param mainClassName
 	 * @param args
-	 * @throws SecurityUtil.ExitTrappedException 
+	 * @throws Throwable 
 	 */
-	public void runJar(final String jarFileName, final String mainClassName, final String args) throws ExitTrappedException {
+	public void runJar(final String jarFileName, final String mainClassName, final String args) throws Throwable {
 		File file = new File(jarFileName);
 		File tmpDir = new File(new Configuration().get("hadoop.tmp.dir"));
 		String os = System.getProperty("os.name").toLowerCase();
 		if (os.contains("win")) {
-			tmpDir = new File(System.getProperty("java.io.tmpdir"),"impala");
+			tmpDir = new File(System.getProperty("java.io.tmpdir"), "impala");
 		}
 		tmpDir.mkdirs();
 		if (!tmpDir.isDirectory()) {
@@ -291,14 +294,13 @@ public class MapReduceCommands extends ConfigurationAware {
 			String[] newArgs = args.split(" ");
 			main.invoke(null, new Object[] { newArgs });
 		} catch (Exception e) {
-			if(e instanceof InvocationTargetException)
-			{
-				if(e.getCause() instanceof ExitTrappedException){
-					throw (ExitTrappedException)e.getCause();
+			if (e instanceof InvocationTargetException) {
+				if (e.getCause() instanceof ExitTrappedException) {
+					throw (ExitTrappedException) e.getCause();
 				}
 			}
-			else{
-				LOG.severe("failed to run MR job. Failed Message:" + e.getMessage());
+			else {
+				throw e;
 			}
 		}
 	}
@@ -326,7 +328,7 @@ public class MapReduceCommands extends ConfigurationAware {
 
 	}
 
-	private void unJar(File jarFile, File toDir) throws IOException {
+	private void unJar(File jarFile, File toDir) throws Throwable {
 		JarFile jar = new JarFile(jarFile);
 		try {
 			Enumeration entries = jar.entries();
@@ -356,6 +358,8 @@ public class MapReduceCommands extends ConfigurationAware {
 					}
 				}
 			}
+		} catch (Throwable t) {
+			throw t;
 		} finally {
 			jar.close();
 		}
@@ -371,4 +375,3 @@ public class MapReduceCommands extends ConfigurationAware {
 
 
 }
-
