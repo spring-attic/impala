@@ -161,6 +161,15 @@ public class FsShellCommandsTest {
 		}
 		fsCmd.copyToLocal(tmpFile, localTmpFile, true, false);
 	}
+	
+	@Test
+	public void testCopyMergeToLocal() {
+		File file = new File(localTmpFile);
+		if(file.exists()){
+			file.delete();
+		}
+		fsCmd.copyMergeToLocal(tmpFile, localTmpFile, false);
+	}
 
 	/**
 	 * Test method for {@link org.springframework.data.hadoop.impala.hdfs.FsShellCommands#get(java.lang.String, java.lang.String, boolean, boolean)}.
