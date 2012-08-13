@@ -15,16 +15,18 @@
  */
 package org.springframework.data.hadoop.impala.hdfs;
 
-import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.FsShell;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.Trash;
 import org.springframework.data.hadoop.impala.common.ConfigurationAware;
 import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
@@ -279,18 +281,25 @@ public class FsShellCommands extends ConfigurationAware {
 			@CliOption(key = { "" }, mandatory = false, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "directory to be listed") final String path,
 			@CliOption(key = { "skipTrash" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether skip trash") final boolean skipTrash,
 			@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive) {
-		List<String> argv = new ArrayList<String>();
-		if(recursive){
-			argv.add("-rmr");
+		try {
+			Path file = new Path(path);
+			FileSystem fs = file.getFileSystem(getHadoopConfiguration());
+			for (Path p : FileUtil.stat2Paths(fs.globStatus(file), file)) {
+				FileStatus status = fs.getFileStatus(p);
+				if (status.isDir() && !recursive) {
+					LOG.severe("Cannot remove directory \"" + path +
+                            "\", use fs rm --recursive instead");
+				}
+				if (!skipTrash) {
+						Trash trash = new Trash(fs, getHadoopConfiguration());
+						trash.moveToTrash(p);
+				}
+				fs.delete(p, recursive);
+			}
+		} catch (Throwable t) {
+			LOG.severe("run HDFS shell failed. Message is: " + t.getMessage());
 		}
-		else{
-			argv.add("-rm");
-		}
-		if(skipTrash){
-			argv.add("-skipTrash");
-		}
-		argv.add(path);
-		run(argv.toArray(new String[0]));
+		
 	}
 	
 	
