@@ -186,6 +186,22 @@ public class FsShellCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 	
+	@CliCommand(value = PREFIX + "copyMergeToLocal", help = "copy and merge HDFS files to local")
+	public void copyMergeToLocal(
+			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
+			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest,
+			@CliOption(key = { "endfile" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether add end of line charactor") final boolean endline){
+		List<String> argv = new ArrayList<String>();
+		argv.add("-getmerge");
+		argv.add(source);
+		argv.add(dest);
+		if(endline){
+			argv.add("true");
+		}
+		run(argv.toArray(new String[0]));
+	}
+
+	
 	@CliCommand(value = PREFIX + "get", help = "copy HDFS files to local")
 	public void get(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
@@ -356,7 +372,7 @@ public class FsShellCommands extends ConfigurationAware {
 	
 	@CliAvailabilityIndicator({PREFIX + "ls", PREFIX + "cat", PREFIX + "chgrp", 
 		PREFIX + "chown", PREFIX + "chmod", PREFIX + "copyFromLocal", PREFIX + "put", PREFIX + "moveFromLocal",
-		PREFIX + "copyToLocal", PREFIX + "get", PREFIX + "count", PREFIX + "cp", PREFIX + "mv", 
+		PREFIX + "copyToLocal", PREFIX + "copyMergeToLocal", PREFIX + "get", PREFIX + "count", PREFIX + "cp", PREFIX + "mv", 
 		PREFIX + "du", PREFIX + "expunge", PREFIX + "mkdir", PREFIX + "rm", 
 		PREFIX + "setrep", PREFIX + "tail", PREFIX + "text", PREFIX + "touchz"})
 	public boolean isCmdAvailable() {
