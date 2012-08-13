@@ -287,8 +287,8 @@ public class FsShellCommands extends ConfigurationAware {
 			for (Path p : FileUtil.stat2Paths(fs.globStatus(file), file)) {
 				FileStatus status = fs.getFileStatus(p);
 				if (status.isDir() && !recursive) {
-					LOG.severe("Cannot remove directory \"" + path +
-                            "\", use fs rm --recursive instead");
+					LOG.severe("To remove directory, please use fs rm --recursive instead");
+					return;
 				}
 				if (!skipTrash) {
 						Trash trash = new Trash(fs, getHadoopConfiguration());
