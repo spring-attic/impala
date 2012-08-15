@@ -23,7 +23,6 @@ import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -33,7 +32,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobClient;
@@ -101,7 +99,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		return true;
 	}
 
-	@CliCommand(value = PREFIX + "submit", help = "submit Map Reduce Jobs.")
+	@CliCommand(value = PREFIX + "submit", help = "Submit a Map Reduce job defined in the job file")
 	public void submit(@CliOption(key = { "jobfile" }, mandatory = true, help = "the configuration file for MR job") final String jobFile) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-submit");
@@ -109,7 +107,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 
-	@CliCommand(value = PREFIX + "status", help = "query Map Reduce status.")
+	@CliCommand(value = PREFIX + "status", help = "Query Map Reduce job status.")
 	public void status(@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-status");
@@ -117,8 +115,11 @@ public class MapReduceCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 
-	@CliCommand(value = PREFIX + "counter", help = "print the counter value")
-	public void counter(@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid, @CliOption(key = { "groupname" }, mandatory = true, help = "the job Id") final String groupName, @CliOption(key = { "countername" }, mandatory = true, help = "the job Id") final String counterName) {
+	@CliCommand(value = PREFIX + "counter", help = "Print the counter value of the MR job")
+	public void counter(
+			@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid, 
+			@CliOption(key = { "groupname" }, mandatory = true, help = "the job Id") final String groupName,
+			@CliOption(key = { "countername" }, mandatory = true, help = "the job Id") final String counterName) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-counter");
 		argv.add(jobid);
@@ -127,7 +128,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 
-	@CliCommand(value = PREFIX + "kill", help = "kill Map Reduce job.")
+	@CliCommand(value = PREFIX + "kill", help = "Kill the Map Reduce job")
 	public void kill(@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-kill");
@@ -135,8 +136,11 @@ public class MapReduceCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 
-	@CliCommand(value = PREFIX + "events", help = "print the events' details received by jobtracker for the given range")
-	public void events(@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid, @CliOption(key = { "from" }, mandatory = true, help = "from event number") final String from, @CliOption(key = { "number" }, mandatory = true, help = "total number of events") final String number) {
+	@CliCommand(value = PREFIX + "events", help = "Print the events' detail received by jobtracker for the given range")
+	public void events(
+			@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid, 
+			@CliOption(key = { "from" }, mandatory = true, help = "from event number") final String from, 
+			@CliOption(key = { "number" }, mandatory = true, help = "total number of events") final String number) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-events");
 		argv.add(jobid);
@@ -145,8 +149,9 @@ public class MapReduceCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 
-	@CliCommand(value = PREFIX + "history", help = "print job details, failed and killed tip details")
-	public void history(@CliOption(key = { "all" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "list all jobs") final boolean all, @CliOption(key = { "" }, mandatory = true, help = "job output directory") final String outputDir) {
+	@CliCommand(value = PREFIX + "history", help = "Print job details, failed and killed job details")
+	public void history(@CliOption(key = { "all" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "Whether print all information") final boolean all, 
+			@CliOption(key = { "" }, mandatory = true, help = "job output directory") final String outputDir) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-history");
 		if (all) {
@@ -156,8 +161,8 @@ public class MapReduceCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 
-	@CliCommand(value = PREFIX + "list", help = "list MapReduce Jobs.")
-	public void list(@CliOption(key = { "all" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "list all jobs") final boolean all) {
+	@CliCommand(value = PREFIX + "list", help = "List the Map Reduce jobs")
+	public void list(@CliOption(key = { "all" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "Whether list all jobs") final boolean all) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-list");
 		if (all) {
@@ -167,7 +172,7 @@ public class MapReduceCommands extends ConfigurationAware {
 	}
 
 
-	@CliCommand(value = "mr task kill", help = "kill Map Reduce task.")
+	@CliCommand(value = "mr task kill", help = "Kill the Map Reduce task")
 	public void killTask(@CliOption(key = { "taskid" }, mandatory = true, help = "the task Id") final String taskid) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-kill-task");
@@ -175,7 +180,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 
-	@CliCommand(value = "mr task fail", help = "fail Map Reduce task.")
+	@CliCommand(value = "mr task fail", help = "Fail the Map Reduce task")
 	public void failTask(@CliOption(key = { "taskid" }, mandatory = true, help = "the task Id") final String taskid) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-fail-task");
@@ -183,8 +188,10 @@ public class MapReduceCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 
-	@CliCommand(value = PREFIX + "set priority", help = "change the priority of the job.")
-	public void setPriority(@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid, @CliOption(key = { "priority" }, mandatory = true, help = "the job priority") final JobPriority priority) {
+	@CliCommand(value = PREFIX + "set priority", help = "Change the priority of the job")
+	public void setPriority(
+			@CliOption(key = { "jobid" }, mandatory = true, help = "the job Id") final String jobid, 
+			@CliOption(key = { "priority" }, mandatory = true, help = "the job priority") final JobPriority priority) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-set-priority");
 		argv.add(jobid);
@@ -206,8 +213,11 @@ public class MapReduceCommands extends ConfigurationAware {
 		}
 	}
 
-	@CliCommand(value = "mr jar", help = "run Map Reduce Job in the jar")
-	public void jar(@CliOption(key = { "jarfile" }, mandatory = true, help = "jar file name") final String jarFileName, @CliOption(key = "mainclass", mandatory = true, help = "main class name") final String mainClassName, @CliOption(key = "args", mandatory = false, help = "input path") final String args) {
+	@CliCommand(value = "mr jar", help = "Run Map Reduce job in the jar")
+	public void jar(
+			@CliOption(key = { "jarfile" }, mandatory = true, help = "jar file name") final String jarFileName, 
+			@CliOption(key = "mainclass", mandatory = true, help = "main class name") final String mainClassName, 
+			@CliOption(key = "args", mandatory = false, help = "input path") final String args) {
 		securityUtil.forbidSystemExitCall();
 		try {
 			runJar(jarFileName, mainClassName, args);

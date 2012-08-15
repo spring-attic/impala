@@ -65,7 +65,7 @@ public class FsShellCommands extends ConfigurationAware {
 		return true;
 	}
 
-	@CliCommand(value = PREFIX + "ls", help = "list files in HDFS")
+	@CliCommand(value = PREFIX + "ls", help = "List files in the directory")
 	public void ls(
 			@CliOption(key = { "" }, mandatory = false, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "directory to be listed") final String path,
 			@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive) {
@@ -78,12 +78,12 @@ public class FsShellCommands extends ConfigurationAware {
 	}
 
 
-	@CliCommand(value = PREFIX + "cat", help = "show file content")
+	@CliCommand(value = PREFIX + "cat", help = "Copy source paths to stdout")
 	public void cat(@CliOption(key = { "" }, mandatory = true, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "file name to be showed") final String path) {
 		runCommand("-cat", path);
 	}
 
-	@CliCommand(value = PREFIX + "chgrp", help = "change file group")
+	@CliCommand(value = PREFIX + "chgrp", help = "Change group association of files")
 	public void chgrp(@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive,
 			@CliOption(key = { "group" }, mandatory = true, help = "group name") final String group,
 			@CliOption(key = { "" }, mandatory = true, help = "file name to be changed group") final String path) {
@@ -98,7 +98,7 @@ public class FsShellCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = PREFIX + "chown", help = "change file ownership")
+	@CliCommand(value = PREFIX + "chown", help = "Change the owner of files")
 	public void chown(
 			@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive,
 			@CliOption(key = { "owner" }, mandatory = true, help = "owner name") final String owner,
@@ -114,7 +114,7 @@ public class FsShellCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = PREFIX + "chmod", help = "change file permissions")
+	@CliCommand(value = PREFIX + "chmod", help = "Change the permissions of files")
 	public void chmod(
 			@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive,
 			@CliOption(key = { "mode" }, mandatory = true, help = "permission mode") final String mode,
@@ -130,7 +130,7 @@ public class FsShellCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = PREFIX + "copyFromLocal", help = "copy local files to HDFS")
+	@CliCommand(value = PREFIX + "copyFromLocal", help = "Copy single src, or multiple srcs from local file system to the destination file system. Same as put")
 	public void copyFromLocal(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
@@ -142,7 +142,7 @@ public class FsShellCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = PREFIX + "put", help = "copy local files to HDFS")
+	@CliCommand(value = PREFIX + "put", help = "Copy single src, or multiple srcs from local file system to the destination file system")
 	public void put(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
@@ -154,7 +154,7 @@ public class FsShellCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = PREFIX + "moveFromLocal", help = "move local files to HDFS")
+	@CliCommand(value = PREFIX + "moveFromLocal", help = "Similar to put command, except that the source localsrc is deleted after it's copied")
 	public void moveFromLocal(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
@@ -167,7 +167,7 @@ public class FsShellCommands extends ConfigurationAware {
 	}
 	
 	
-	@CliCommand(value = PREFIX + "copyToLocal", help = "copy HDFS files to local")
+	@CliCommand(value = PREFIX + "copyToLocal", help = "Copy files to the local file system. Same as get")
 	public void copyToLocal(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest,
@@ -186,11 +186,11 @@ public class FsShellCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = PREFIX + "copyMergeToLocal", help = "copy and merge HDFS files to local")
+	@CliCommand(value = PREFIX + "copyMergeToLocal", help = "Takes a source directory and a destination file as input and concatenates files in src into the destination local file")
 	public void copyMergeToLocal(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest,
-			@CliOption(key = { "endfile" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether add end of line charactor") final boolean endline){
+			@CliOption(key = { "endline" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether add a newline character at the end of each file") final boolean endline){
 		List<String> argv = new ArrayList<String>();
 		argv.add("-getmerge");
 		argv.add(source);
@@ -202,7 +202,7 @@ public class FsShellCommands extends ConfigurationAware {
 	}
 
 	
-	@CliCommand(value = PREFIX + "get", help = "copy HDFS files to local")
+	@CliCommand(value = PREFIX + "get", help = "Copy files to the local file system")
 	public void get(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest,
@@ -224,8 +224,8 @@ public class FsShellCommands extends ConfigurationAware {
 	
 	@CliCommand(value = PREFIX + "count", help = "Count the number of directories, files, bytes, quota, and remaining quota")
 	public void count(
-			@CliOption(key = { "quota" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean quota,
-			@CliOption(key = { "path" }, mandatory = true, help = " path name") final String path) {
+			@CliOption(key = { "quota" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with quta information") final boolean quota,
+			@CliOption(key = { "path" }, mandatory = true, help = "path name") final String path) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-count");
 		if(quota){
@@ -236,7 +236,7 @@ public class FsShellCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = PREFIX + "cp", help = "copy files in the HDFS")
+	@CliCommand(value = PREFIX + "cp", help = "Copy files from source to destination. This command allows multiple sources as well in which case the destination must be a directory")
 	public void cp(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
@@ -248,7 +248,7 @@ public class FsShellCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = PREFIX + "mv", help = "move files in the HDFS")
+	@CliCommand(value = PREFIX + "mv", help = "Move source files to destination in the HDFS")
 	public void mv(
 			@CliOption(key = { "from" }, mandatory = true, help = "source file names") final String source,
 			@CliOption(key = { "to" }, mandatory = true, help = "destination path name") final String dest) {
@@ -260,7 +260,7 @@ public class FsShellCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = PREFIX + "du", help = "display sizes of file")
+	@CliCommand(value = PREFIX + "du", help = "Displays sizes of files and directories contained in the given directory or the length of a file in case its just a file")
 	public void du(
 			@CliOption(key = { "" }, mandatory = false, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "directory to be listed") final String path,
 			@CliOption(key = { "summary" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with summary") final boolean summary) {
@@ -275,7 +275,7 @@ public class FsShellCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = PREFIX + "expunge", help = "empty the trash")
+	@CliCommand(value = PREFIX + "expunge", help = "Empty the trash")
 	public void expunge() {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-expunge");
@@ -283,7 +283,7 @@ public class FsShellCommands extends ConfigurationAware {
 	}
 	
 	
-	@CliCommand(value = PREFIX + "mkdir", help = "create new directory")
+	@CliCommand(value = PREFIX + "mkdir", help = "Create a new directory")
 	public void mkdir(
 			@CliOption(key = { "" }, mandatory = true, help = "directory name") final String dir) {
 		List<String> argv = new ArrayList<String>();
@@ -292,7 +292,7 @@ public class FsShellCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = PREFIX + "rm", help = "remove files in HDFS")
+	@CliCommand(value = PREFIX + "rm", help = "Remove files in the HDFS")
 	public void rm(
 			@CliOption(key = { "" }, mandatory = false, specifiedDefaultValue = ".", unspecifiedDefaultValue = ".", help = "directory to be listed") final String path,
 			@CliOption(key = { "skipTrash" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether skip trash") final boolean skipTrash,
@@ -320,12 +320,12 @@ public class FsShellCommands extends ConfigurationAware {
 	
 	
 	
-	@CliCommand(value = PREFIX + "setrep", help = "set replication number")
+	@CliCommand(value = PREFIX + "setrep", help = "Change the replication factor of a file")
 	public void setrep(
-			@CliOption(key = { "replica" }, mandatory = true, help = "source file names") final int replica,
 			@CliOption(key = { "path" }, mandatory = true, help = " path name") final String path,
+			@CliOption(key = { "replica" }, mandatory = true, help = "source file names") final int replica,
 			@CliOption(key = { "recursive" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether with recursion") final boolean recursive,
-			@CliOption(key = { "waiting" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether enable waiting list") final boolean waiting) {
+			@CliOption(key = { "waiting" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether wait for the replic number is eqal to the number") final boolean waiting) {
 		List<String> argv = new ArrayList<String>();
 		argv.add("-setrep");
 		if(recursive){
@@ -339,7 +339,7 @@ public class FsShellCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = PREFIX + "tail", help = "tails file in HDFS")
+	@CliCommand(value = PREFIX + "tail", help = "Display last kilobyte of the file to stdout")
 	public void tail(
 			@CliOption(key = { "" }, mandatory = true, help = "file to be tailed") final String path,
 			@CliOption(key = { "file" }, mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false", help = "whether show content while file grow") final boolean file) {
@@ -352,7 +352,7 @@ public class FsShellCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = PREFIX + "text", help = "show the text content")
+	@CliCommand(value = PREFIX + "text", help = "Take a source file and output the file in text format")
 	public void text(
 			@CliOption(key = { "" }, mandatory = true, help = "file to be showed") final String path) {
 		List<String> argv = new ArrayList<String>();
@@ -361,7 +361,7 @@ public class FsShellCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliCommand(value = PREFIX + "touchz", help = "touch the file")
+	@CliCommand(value = PREFIX + "touchz", help = "Create a file of zero length")
 	public void touchz(
 			@CliOption(key = { "" }, mandatory = true, help = "file to be touched") final String path) {
 		List<String> argv = new ArrayList<String>();
