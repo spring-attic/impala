@@ -22,7 +22,6 @@ import java.util.Properties;
 import javax.annotation.PostConstruct;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.pig.ExecType;
 import org.apache.pig.PigServer;
@@ -37,7 +36,6 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.data.hadoop.pig.PigContextFactoryBean;
 import org.springframework.data.hadoop.pig.PigServerFactoryBean;
 import org.springframework.shell.core.CommandMarker;
-import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
@@ -164,6 +162,10 @@ public class PigCommands implements CommandMarker {
 
 	@CliCommand(value = { PREFIX + "script" }, help = "Executes a Pig script")
 	public String script(@CliOption(key = { "", "location" }, mandatory = true, help = "Script location") String location) {
+		String jobTracker = hadoopConfiguration.get("mapred.job.tracker");
+		if (jobTracker == null || jobTracker.length() == 0) {
+			return "You must set Job Tracker URL before run Pig script";
+		}
 		Resource resource = resourceResolver.getResource(fixLocation(location));
 
 		if (!resource.exists()) {
@@ -211,16 +213,8 @@ public class PigCommands implements CommandMarker {
 			if (pig != null)
 				pig.shutdown();
 		}
-	}
-	
-	@CliAvailabilityIndicator({PREFIX + "script"})
-	public boolean isCmdAvailable() {
-		String jobTracker = hadoopConfiguration.get("mapred.job.tracker");
-		if(jobTracker != null && jobTracker.length() > 0){
-			return true;
-		}
-		return false;
-	}
+	}	
+
 
 	private static String fixLocation(String location) {
 		if (StringUtils.hasText(location) && !location.contains(":")) {

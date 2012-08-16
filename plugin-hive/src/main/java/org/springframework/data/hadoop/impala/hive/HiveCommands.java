@@ -30,7 +30,6 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.data.hadoop.hive.HiveClientFactoryBean;
 import org.springframework.data.hadoop.hive.HiveScriptRunner;
 import org.springframework.shell.core.CommandMarker;
-import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.shell.support.util.StringUtils;
@@ -101,7 +100,9 @@ public class HiveCommands implements CommandMarker {
 
 	@CliCommand(value = { PREFIX + "script" }, help = "Executes a Hive script")
 	public String script(@CliOption(key = { "", "location" }, mandatory = true, help = "Script location") String location) {
-
+		if (host == null || host.length() == 0) {
+			return "You must set Hive server URL before run Hive script";
+		}
 		Resource resource = resourceResolver.getResource(fixLocation(location));
 		if (!resource.exists()) {
 			return "No resource found at " + location;
@@ -133,14 +134,7 @@ public class HiveCommands implements CommandMarker {
 
 		return sb.append(StringUtils.LINE_SEPARATOR).append("Script [" + uri + "] executed succesfully").toString();
 	}
-	
-	@CliAvailabilityIndicator({PREFIX + "script"})
-	public boolean isCmdAvailable() {
-		if(host != null && host.length() > 0){
-			return true;
-		}
-		return false;
-	}
+
 	
 
 	private static String fixLocation(String location) {

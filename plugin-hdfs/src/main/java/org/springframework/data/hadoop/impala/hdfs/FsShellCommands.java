@@ -28,9 +28,10 @@ import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.Trash;
 import org.springframework.data.hadoop.impala.common.ConfigurationAware;
-import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
+import org.springframework.shell.core.ExecutionProcessor;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
+import org.springframework.shell.event.ParseResult;
 import org.springframework.stereotype.Component;
 
 /**
@@ -40,7 +41,7 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class FsShellCommands extends ConfigurationAware {
+public class FsShellCommands extends ConfigurationAware implements ExecutionProcessor{
 
 	private static final String PREFIX = "fs ";
 
@@ -63,6 +64,19 @@ public class FsShellCommands extends ConfigurationAware {
 		}
 		init();
 		return true;
+	}
+	
+	@Override
+	public ParseResult beforeInvocation(ParseResult invocationContext) {
+		invocationContext = super.beforeInvocation(invocationContext);
+		String fs = getHadoopConfiguration().get("fs.default.name");
+		if(fs != null && fs.length() > 0){
+			return invocationContext;
+		}
+		else{
+			LOG.severe("You must set fs URL before run fs commands");
+			throw new RuntimeException("You must set fs URL before run fs commands");
+		}
 	}
 
 	@CliCommand(value = PREFIX + "ls", help = "List files in the directory")
@@ -370,18 +384,6 @@ public class FsShellCommands extends ConfigurationAware {
 		run(argv.toArray(new String[0]));
 	}
 	
-	@CliAvailabilityIndicator({PREFIX + "ls", PREFIX + "cat", PREFIX + "chgrp", 
-		PREFIX + "chown", PREFIX + "chmod", PREFIX + "copyFromLocal", PREFIX + "put", PREFIX + "moveFromLocal",
-		PREFIX + "copyToLocal", PREFIX + "copyMergeToLocal", PREFIX + "get", PREFIX + "count", PREFIX + "cp", PREFIX + "mv", 
-		PREFIX + "du", PREFIX + "expunge", PREFIX + "mkdir", PREFIX + "rm", 
-		PREFIX + "setrep", PREFIX + "tail", PREFIX + "text", PREFIX + "touchz"})
-	public boolean isCmdAvailable() {
-		String fs = getHadoopConfiguration().get("fs.default.name");
-		if(fs != null && fs.length() > 0){
-			return true;
-		}
-		return false;
-	}
 	
 	/**
 	 * @param value

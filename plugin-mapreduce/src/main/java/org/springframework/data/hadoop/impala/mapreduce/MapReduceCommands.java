@@ -40,7 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.hadoop.impala.common.ConfigurationAware;
 import org.springframework.data.hadoop.impala.common.util.SecurityUtil;
 import org.springframework.data.hadoop.impala.common.util.SecurityUtil.ExitTrappedException;
-import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
+import org.springframework.shell.core.ExecutionProcessor;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.shell.event.ParseResult;
@@ -54,7 +54,7 @@ import org.springframework.stereotype.Component;
  * @author Author of <code>org.apache.hadoop.util.RunJar</code>
  */
 @Component
-public class MapReduceCommands extends ConfigurationAware {
+public class MapReduceCommands extends ConfigurationAware implements ExecutionProcessor{
 
 	private JobClient jobClient;
 
@@ -66,15 +66,22 @@ public class MapReduceCommands extends ConfigurationAware {
 	@Override
 	public ParseResult beforeInvocation(ParseResult invocationContext) {
 		invocationContext = super.beforeInvocation(invocationContext);
-		if (jobClient == null) {
-			init();
+		String jobTracker = getHadoopConfiguration().get("mapred.job.tracker");
+		if (jobTracker != null && jobTracker.length() > 0) {
+			if (jobClient == null) {
+				init();
+			}
+			String os = System.getProperty("os.name").toLowerCase();
+			if (os.contains("win")) {
+				org.apache.hadoop.mapreduce.JobSubmissionFiles.JOB_DIR_PERMISSION.fromShort((short) 0700);
+				org.apache.hadoop.mapreduce.JobSubmissionFiles.JOB_FILE_PERMISSION.fromShort((short) 0644);
+			}
+			return invocationContext;
 		}
-		String os = System.getProperty("os.name").toLowerCase();
-		if (os.contains("win")) {
-			org.apache.hadoop.mapreduce.JobSubmissionFiles.JOB_DIR_PERMISSION.fromShort((short) 0700);
-			org.apache.hadoop.mapreduce.JobSubmissionFiles.JOB_FILE_PERMISSION.fromShort((short) 0644);
+		else{
+			LOG.severe("You must set Job Tracker URL before run Map Reduce commands");
+			throw new RuntimeException("You must set Job Tracker URL before run Map Reduce commands");
 		}
-		return invocationContext;
 	}
 
 	public void init() {
@@ -98,6 +105,7 @@ public class MapReduceCommands extends ConfigurationAware {
 		init();
 		return true;
 	}
+	
 
 	@CliCommand(value = PREFIX + "submit", help = "Submit a Map Reduce job defined in the job file")
 	public void submit(@CliOption(key = { "jobfile" }, mandatory = true, help = "the configuration file for MR job") final String jobFile) {
@@ -230,16 +238,6 @@ public class MapReduceCommands extends ConfigurationAware {
 		}
 	}
 
-	@CliAvailabilityIndicator({ PREFIX + "submit", PREFIX + "status", PREFIX + "counter", PREFIX + "kill",
-			PREFIX + "events", PREFIX + "history", PREFIX + "list", "mr task kill", "mr task fail",
-			PREFIX + "set priority", "mr jar" })
-	public boolean isCmdAvailable() {
-		String jobTracker = getHadoopConfiguration().get("mapred.job.tracker");
-		if (jobTracker != null && jobTracker.length() > 0) {
-			return true;
-		}
-		return false;
-	}
 
 	/**
 	 * @param jarFileName
