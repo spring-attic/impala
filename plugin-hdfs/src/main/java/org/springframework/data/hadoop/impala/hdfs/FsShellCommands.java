@@ -404,7 +404,7 @@ public class FsShellCommands extends ConfigurationAware implements ExecutionProc
 			if(t.getCause() != null){
 				LOG.severe("root error message is:" + t.getCause().getMessage());
 			}
-			t.printStackTrace();
+			//t.printStackTrace();
 		}
 	}
 
