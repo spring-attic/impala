@@ -58,7 +58,6 @@ public class HiveCommands implements CommandMarker {
 	public void init() throws Exception {
 		hiveClientFactory = new HiveClientFactoryBean();
 
-		hiveClientFactory.setAutoStartup(false);
 		hiveClientFactory.setHost(host);
 		hiveClientFactory.setPort(port);
 		hiveClientFactory.setTimeout(timeout.intValue());
@@ -117,19 +116,21 @@ public class HiveCommands implements CommandMarker {
 		}
 
 		StringBuilder sb = new StringBuilder();
+		HiveClient client = null;
 		try {
 			// for each run, start a new Hive instance
 			init();
 
-			hiveClientFactory.afterPropertiesSet();
-			hiveClientFactory.start();
-			HiveClient client = hiveClientFactory.getObject();
+			client = hiveClientFactory.getObject();
 			List<String> results = HiveScriptRunner.run(client, resource);
 			sb.append(StringUtils.collectionToDelimitedString(results, StringUtils.LINE_SEPARATOR));
 		} catch (Exception ex) {
 			return "Script [" + uri + "] failed - " + ex;
 		} finally {
-			hiveClientFactory.destroy();
+			try {
+			client.shutdown();
+			} catch (Exception ex) {
+			}
 		}
 
 		return sb.append(StringUtils.LINE_SEPARATOR).append("Script [" + uri + "] executed succesfully").toString();
