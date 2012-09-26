@@ -16,19 +16,17 @@
 package org.springframework.data.hadoop.impala.hive;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
 import org.apache.hadoop.hive.conf.HiveConf;
-import org.apache.hadoop.hive.service.HiveClient;
 import org.springframework.core.io.FileSystemResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.data.hadoop.hive.HiveClientFactoryBean;
-import org.springframework.data.hadoop.hive.HiveScriptRunner;
+import org.springframework.data.hadoop.hive.HiveTemplate;
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
@@ -50,17 +48,21 @@ public class HiveCommands implements CommandMarker {
 	private Long timeout = TimeUnit.MINUTES.toMillis(2);
 
 	private HiveClientFactoryBean hiveClientFactory;
+	private HiveTemplate hiveTemplate;
+
 
 	private ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver(
 			new FileSystemResourceLoader());
 
 	@PostConstruct
-	public void init() throws Exception {
+	public void init() {
 		hiveClientFactory = new HiveClientFactoryBean();
 
 		hiveClientFactory.setHost(host);
 		hiveClientFactory.setPort(port);
 		hiveClientFactory.setTimeout(timeout.intValue());
+
+		hiveTemplate = new HiveTemplate(hiveClientFactory.getObject());
 	}
 
 	private String info() {
@@ -94,6 +96,8 @@ public class HiveCommands implements CommandMarker {
 			this.timeout = timeout;
 		}
 
+		// reset current config
+		hiveTemplate = null;
 		return info();
 	}
 
@@ -115,24 +119,19 @@ public class HiveCommands implements CommandMarker {
 			// ignore - we'll use location
 		}
 
-		StringBuilder sb = new StringBuilder();
-		HiveClient client = null;
-		try {
-			// for each run, start a new Hive instance
+		if (hiveTemplate == null) {
 			init();
-
-			client = hiveClientFactory.getObject();
-			List<String> results = HiveScriptRunner.run(client, resource);
-			sb.append(StringUtils.collectionToDelimitedString(results, StringUtils.LINE_SEPARATOR));
-		} catch (Exception ex) {
-			return "Script [" + uri + "] failed - " + ex;
-		} finally {
-			try {
-			client.shutdown();
-			} catch (Exception ex) {
-			}
 		}
 
+		StringBuilder sb = new StringBuilder();
+		
+		try {
+			sb.append(StringUtils.collectionToDelimitedString(hiveTemplate.execute(resource),
+					StringUtils.LINE_SEPARATOR));
+		} catch (Exception ex) {
+			return "Script [" + uri + "] failed - " + ex;
+		}
+		
 		return sb.append(StringUtils.LINE_SEPARATOR).append("Script [" + uri + "] executed succesfully").toString();
 	}
 

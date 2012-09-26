@@ -16,15 +16,13 @@
 package org.springframework.data.hadoop.impala.pig;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.IOUtils;
 import org.apache.pig.ExecType;
-import org.apache.pig.PigServer;
 import org.apache.pig.backend.executionengine.ExecJob;
 import org.apache.pig.tools.pigstats.ScriptState;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +33,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.data.hadoop.pig.PigContextFactoryBean;
 import org.springframework.data.hadoop.pig.PigServerFactoryBean;
+import org.springframework.data.hadoop.pig.PigTemplate;
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
@@ -56,6 +55,7 @@ public class PigCommands implements CommandMarker {
 
 	private PigContextFactoryBean pigContextFactory;
 	private PigServerFactoryBean pigFactory;
+	private PigTemplate pigTemplate;
 
 	private ExecType execType;
 	private String jobTracker, jobName, jobPriority;
@@ -94,6 +94,8 @@ public class PigCommands implements CommandMarker {
 		if (StringUtils.hasText(jobPriority)) {
 			pigFactory.setJobPriority(jobPriority);
 		}
+
+		pigTemplate = new PigTemplate(pigFactory.getObject());
 	}
 
 	private Properties loadProperties() throws Exception {
@@ -123,6 +125,8 @@ public class PigCommands implements CommandMarker {
 		this.execType = execType;
 		this.propertiesLocation = fixLocation(location);
 
+		// reset template
+		pigTemplate = null;
 		return info();
 	}
 
@@ -180,26 +184,13 @@ public class PigCommands implements CommandMarker {
 			// ignore - we'll use location
 		}
 
-		PigServer pig = null;
 		try {
-			// for each run, start a new Pig instance
-			init();
-
-			pig = pigFactory.getObject();
-
-			pig.setBatchOn();
-			pig.getPigContext().connect();
-
-			// register scripts
-			InputStream in = null;
-			try {
-				in = resource.getInputStream();
-				pig.registerScript(in);
-			} finally {
-				IOUtils.closeStream(in);
+			if (pigTemplate == null) {
+				init();
 			}
 
-			ExecJob result = pig.executeBatch().get(0);
+			List<ExecJob> results = pigTemplate.execute(resource);
+			ExecJob result = results.get(0);
 			Exception exception = result.getException();
 			StringBuilder sb = new StringBuilder(result.getStatus().name());
 			if (exception != null) {
@@ -209,9 +200,6 @@ public class PigCommands implements CommandMarker {
 			return "Script [" + uri + "] executed succesfully. Returned status " + sb.toString();
 		} catch (Exception ex) {
 			return "Script [" + uri + "] failed - " + ex;
-		} finally {
-			if (pig != null)
-				pig.shutdown();
 		}
 	}	
 

@@ -111,6 +111,7 @@ project('plugin-pig') {
 	dependencies {
 		compile project(':plugin-common')
 		compile("org.apache.pig:pig:$pigVersion")
+		compile("org.springframework:spring-tx:$springVersion")
 		compile "org.antlr:antlr-runtime:3.4"
 	}
 }
