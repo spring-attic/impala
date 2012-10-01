@@ -126,7 +126,7 @@ public class HiveCommands implements CommandMarker {
 		StringBuilder sb = new StringBuilder();
 		
 		try {
-			sb.append(StringUtils.collectionToDelimitedString(hiveTemplate.execute(resource),
+			sb.append(StringUtils.collectionToDelimitedString(hiveTemplate.executeScript(resource),
 					StringUtils.LINE_SEPARATOR));
 		} catch (Exception ex) {
 			return "Script [" + uri + "] failed - " + ex;

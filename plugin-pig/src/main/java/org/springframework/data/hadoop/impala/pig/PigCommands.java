@@ -189,7 +189,7 @@ public class PigCommands implements CommandMarker {
 				init();
 			}
 
-			List<ExecJob> results = pigTemplate.execute(resource);
+			List<ExecJob> results = pigTemplate.executeScript(resource);
 			ExecJob result = results.get(0);
 			Exception exception = result.getException();
 			StringBuilder sb = new StringBuilder(result.getStatus().name());
