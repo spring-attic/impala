@@ -32,6 +32,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.data.hadoop.pig.PigContextFactoryBean;
+import org.springframework.data.hadoop.pig.PigScript;
 import org.springframework.data.hadoop.pig.PigServerFactoryBean;
 import org.springframework.data.hadoop.pig.PigTemplate;
 import org.springframework.shell.core.CommandMarker;
@@ -189,7 +190,7 @@ public class PigCommands implements CommandMarker {
 				init();
 			}
 
-			List<ExecJob> results = pigTemplate.executeScript(resource);
+			List<ExecJob> results = pigTemplate.executeScript(new PigScript(resource));
 			ExecJob result = results.get(0);
 			Exception exception = result.getException();
 			StringBuilder sb = new StringBuilder(result.getStatus().name());
