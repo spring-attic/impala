@@ -10,8 +10,7 @@ allprojects {
     apply from: "${rootProject.projectDir}/maven.gradle"
 
 	repositories {
-		maven { url "http://repo.springsource.org/libs-snapshot" }
-		maven { url "http://spring-roo-repository.springsource.org/release" }
+		maven { url "http://repo.springsource.org/libs-milestone" }
 	}
 
 	dependencies {
@@ -289,7 +288,7 @@ configure(rootProject) {
 
     task wrapper(type: Wrapper) {
         description = 'Generates gradlew[.bat] scripts'
-        gradleVersion = '1.0'
+        gradleVersion = '1.2'
     }
 }
 
