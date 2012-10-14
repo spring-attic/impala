@@ -66,7 +66,7 @@ public class PigCommands implements CommandMarker {
 	private ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver(
 			new FileSystemResourceLoader());
 
-	@PostConstruct
+	
 	public void init() throws Exception {
 		pigContextFactory = new PigContextFactoryBean();
 		pigContextFactory.setConfiguration(hadoopConfiguration);

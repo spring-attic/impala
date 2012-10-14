@@ -55,7 +55,7 @@ public class HiveCommands implements CommandMarker {
 	private ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver(
 			new FileSystemResourceLoader());
 
-	@PostConstruct
+	
 	public void init() {
 		hiveClientFactory = new HiveClientFactoryBean();
 
