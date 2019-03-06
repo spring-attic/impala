@@ -3,7 +3,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 
 repositories {
-	maven { url "http://repo.springsource.org/libs-snapshot" }
+	maven { url "https://repo.springsource.org/libs-snapshot" }
 	maven { url "http://spring-roo-repository.springsource.org/release" }
 }
 
