@@ -3,6 +3,6 @@
 3. change to "tmp/impala" and run it "./run.sh"
 
 note:
-	the data is from http://www.grouplens.org/system/files/ml-100k-README.txt
+	the data is from https://grouplens.org/system/files/ml-100k-README.txt
 
 

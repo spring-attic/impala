@@ -1,6 +1,6 @@
 IMPALA
 ------
-http://github.com/SpringSource/impala
+https://github.com/SpringSource/impala
 
 1. INTRODUCTION
 
@@ -18,9 +18,9 @@ The Impala jars files can be found in the 'dist' directory.
 4. GETTING STARTED
 
 Please see the reference documentation.
-Additionally the blog at http://blog.springsource.com as well
+Additionally the blog at https://spring.io/blog/ as well
 as sections of interest in the reference documentation.
 
 ADDITIONAL RESOURCES
-Spring Hadoop Homepage: http://www.springsource.org/spring-data/hadoop
-Hadoop Homepage: http://hadoop.apache.org
+Spring Hadoop Homepage: https://www.springsource.org/spring-data/hadoop
+Hadoop Homepage: https://hadoop.apache.org
