@@ -10,7 +10,7 @@ allprojects {
     apply from: "${rootProject.projectDir}/maven.gradle"
 
 	repositories {
-		maven { url "http://repo.springsource.org/libs-milestone" }
+		maven { url "https://repo.springsource.org/libs-milestone" }
 	}
 
 	dependencies {
@@ -141,11 +141,11 @@ configure(rootProject) {
         options.overview = 'docs/api/overview.html'
         options.splitIndex = true
         options.links(
-           "http://download.oracle.com/javase/6/docs/api",
-           "http://static.springframework.org/spring/docs/3.1.x/javadoc-api",
-           "http://static.springframework.org/spring-hadoop/docs/current/api",
-           "http://static.springsource.org/spring-batch/apidocs/",
-           "http://hadoop.apache.org/common/docs/current/api/"
+           "https://download.oracle.com/javase/6/docs/api",
+           "https://docs.spring.io/spring/docs/3.1.x/javadoc-api",
+           "https://docs.spring.io/spring-hadoop/docs/current/api",
+           "https://docs.spring.io/spring-batch/apidocs/",
+           "https://hadoop.apache.org/common/docs/current/api/"
         )
         source subprojects.collect { project ->
             project.sourceSets.main.allJava
