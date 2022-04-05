@@ -63,14 +63,14 @@ Interactive shell for Hadoop
   <id>spring-maven-snapshot</id>
   <snapshots><enabled>true</enabled></snapshots>
   <name>Springframework Maven SNAPSHOT Repository</name>
-  <url>http://maven.springframework.org/snapshot</url>
+  <url>https://maven.springframework.org/snapshot</url>
 </repository> 
 
 <!-- used for milestone/rc releases -->
 <repository>
   <id>spring-maven-milestone</id>
   <name>Springframework Maven Milestone Repository</name>
-  <url>http://maven.springframework.org/milestone</url>
+  <url>https://maven.springframework.org/milestone</url>
 </repository>  
 ~~~~~
 
@@ -78,7 +78,7 @@ Interactive shell for Hadoop
 
 ~~~~~ groovy
 repositories {
-   mavenRepo name: "spring-snapshot", urls: "http://maven.springframework.org/snapshot"
+   mavenRepo name: "spring-snapshot", urls: "https://maven.springframework.org/snapshot"
 }
 
 dependencies {
